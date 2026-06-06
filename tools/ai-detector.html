@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="ai detector, ai text detector, detect ai generated text, chatgpt detector, check if ai written, ai content checker free, turnitin ai detector, ai writing detector">
+<meta name="description" content="Free AI text detector. Analyzes perplexity, burstiness and sentence patterns to detect AI-generated content. Upload PDF, Word or paste text. No signup.">
+<title>AI Text Detector Free — Check if Text is AI Generated | Neatkit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);
+  --bg:#fff;--bg2:#f7f7fb;--bg3:#f0f0f7;
+  --glass:rgba(255,255,255,0.75);
+  --text:#1a1a2e;--text2:#5a5a7a;--text3:#9898b8;
+  --border:rgba(180,180,220,0.35);--border2:rgba(180,180,220,0.6);
+  --accent:#7b8fd4;--accent-light:rgba(123,143,212,0.1);
+  --success:#16a34a;--error:#dc2626;--warning:#d97706;
+  --shadow-sm:0 1px 3px rgba(100,100,160,0.08);
+  --shadow-md:0 4px 16px rgba(100,100,160,0.10);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --score-color:#6b7280;
+}
+body{background:var(--bg2);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+nav{position:sticky;top:0;z-index:200;background:var(--glass);backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.9);padding:0 2rem;display:flex;align-items:center;height:60px;gap:1rem}
+.logo{display:flex;align-items:center;gap:0.625rem;text-decoration:none;font-weight:700;font-size:1.1rem;color:var(--text)}
+.logo-mark{width:30px;height:30px;background:var(--grad);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.breadcrumb{color:var(--text3);font-size:0.82rem;display:flex;align-items:center;gap:0.4rem}
+.breadcrumb a{color:var(--accent);text-decoration:none}
+
+.page{max-width:980px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+h1{font-size:1.875rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem}
+.subtitle{color:var(--text2);font-size:0.925rem;margin-bottom:0.75rem}
+
+.disclaimer{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r-md);padding:0.875rem 1.125rem;font-size:0.82rem;color:#92400e;margin-bottom:2rem;display:flex;gap:0.75rem}
+.disclaimer strong{display:block;margin-bottom:0.2rem}
+
+/* INPUT AREA */
+.input-section{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:1.5rem;margin-bottom:1.25rem}
+.input-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.875rem}
+.input-label{font-size:0.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em}
+.word-count{font-family:var(--mono);font-size:0.78rem;color:var(--text3)}
+
+textarea{width:100%;min-height:220px;background:transparent;border:none;color:var(--text);font-family:var(--sans);font-size:0.95rem;line-height:1.75;resize:none;outline:none}
+textarea::placeholder{color:var(--text3)}
+
+.input-footer{display:flex;justify-content:space-between;align-items:center;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid var(--border);flex-wrap:wrap;gap:0.75rem}
+
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;background:var(--grad);color:white;font-family:var(--sans);font-size:0.9rem;font-weight:700;padding:0.75rem 1.75rem;border-radius:100px;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:box-shadow 0.15s,transform 0.15s}
+.btn-primary:hover:not(:disabled){box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:var(--sans);font-size:0.82rem;font-weight:600;padding:0.5rem 1rem;border-radius:100px;cursor:pointer;transition:all 0.15s}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* RESULTS */
+.results{display:none}
+.results.visible{display:block}
+
+/* SCORE CARD */
+.score-card{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:2rem;margin-bottom:1.25rem;display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:center}
+.score-dial{position:relative;width:120px;height:120px;flex-shrink:0}
+.score-dial svg{transform:rotate(-90deg)}
+.score-dial-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-big{font-family:var(--mono);font-size:2rem;font-weight:700;line-height:1;color:var(--score-color)}
+.score-unit{font-size:0.65rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
+.score-verdict{font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.35rem;color:var(--score-color)}
+.score-explain{font-size:0.875rem;color:var(--text2);line-height:1.6;margin-bottom:1rem}
+.score-caveats{font-size:0.78rem;color:var(--text3);font-style:italic}
+
+/* METRICS GRID */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.875rem;margin-bottom:1.25rem}
+.metric-card{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.25rem}
+.metric-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.625rem}
+.metric-name{font-size:0.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em}
+.metric-badge{font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:100px;letter-spacing:0.04em}
+.badge-low{background:#dcfce7;color:#15803d}
+.badge-med{background:#fef9c3;color:#854d0e}
+.badge-high{background:#fee2e2;color:#991b1b}
+.metric-val{font-family:var(--mono);font-size:1.35rem;font-weight:600;color:var(--text);margin-bottom:0.25rem}
+.metric-desc{font-size:0.75rem;color:var(--text3);line-height:1.5}
+.metric-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:0.625rem}
+.metric-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease}
+
+/* HIGHLIGHTED TEXT */
+.highlight-section{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:1.5rem;margin-bottom:1.25rem}
+.section-title{font-size:0.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+.legend{display:flex;gap:1rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text2)}
+.legend-dot{width:12px;height:12px;border-radius:2px;flex-shrink:0}
+
+.annotated-text{font-size:0.925rem;line-height:2;color:var(--text)}
+.span-ai-high{background:#fee2e2;border-bottom:2px solid #ef4444;border-radius:2px;cursor:help;position:relative}
+.span-ai-med{background:#fef9c3;border-bottom:2px solid #f59e0b;border-radius:2px;cursor:help}
+.span-ai-low{background:#f0fdf4;border-bottom:1px dashed #86efac;border-radius:2px}
+.span-human{background:transparent}
+
+/* SENTENCE LIST */
+.sentence-list{display:flex;flex-direction:column;gap:0.5rem;margin-top:1rem}
+.sentence-item{display:grid;grid-template-columns:1fr auto auto auto;gap:0.75rem;align-items:center;padding:0.625rem 0.875rem;border-radius:var(--r-sm);font-size:0.82rem;border:1px solid var(--border)}
+.sentence-item.flagged-high{background:#fff5f5;border-color:#fecaca}
+.sentence-item.flagged-med{background:#fffdf0;border-color:#fde68a}
+.sentence-text{color:var(--text);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sent-len{font-family:var(--mono);font-size:0.72rem;color:var(--text3);white-space:nowrap}
+.sent-score{font-family:var(--mono);font-size:0.75rem;font-weight:600;white-space:nowrap}
+.sent-reason{font-size:0.68rem;color:var(--text3);text-align:right;white-space:nowrap}
+
+/* INPUT TABS */
+.input-tabs{display:flex;background:var(--bg3);border-radius:var(--r-md);padding:3px;gap:2px;width:fit-content;margin-bottom:1.25rem}
+.input-tab{background:transparent;border:none;color:var(--text2);font-family:var(--sans);font-size:0.82rem;font-weight:600;padding:0.45rem 1.125rem;border-radius:10px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:0.4rem}
+.input-tab.active{background:var(--bg);color:var(--text);box-shadow:var(--shadow-sm)}
+/* FILE DROP */
+.file-drop{border:2px dashed var(--border2);border-radius:var(--r-lg);padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg2);position:relative;display:none}
+.file-drop.show{display:block}
+.file-drop:hover,.file-drop.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.file-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-drop-icon{font-size:2rem;margin-bottom:0.75rem}
+.file-drop-title{font-weight:700;font-size:0.95rem;margin-bottom:0.3rem}
+.file-drop-sub{font-size:0.78rem;color:var(--text3)}
+.file-loaded{display:none;align-items:center;gap:0.875rem;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-md);padding:0.875rem 1rem;margin-top:0.875rem}
+.file-loaded.visible{display:flex}
+.file-loaded-icon{font-size:1.5rem;flex-shrink:0}
+.file-loaded-name{font-weight:600;font-size:0.875rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-loaded-meta{font-size:0.75rem;color:var(--text3);font-family:var(--mono)}
+.file-clear{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:1rem;transition:color 0.12s;padding:0.25rem}
+.file-clear:hover{color:var(--error)}
+.file-parsing{display:none;align-items:center;gap:0.75rem;font-size:0.85rem;color:var(--text2);margin-top:0.875rem}
+.file-parsing.visible{display:flex}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* WHAT TO FIX */
+.fix-section{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:1.5rem;margin-bottom:1.25rem}
+.fix-item{display:flex;gap:0.875rem;padding:0.875rem 0;border-bottom:1px solid var(--border)}
+.fix-item:last-child{border-bottom:none;padding-bottom:0}
+.fix-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.875rem;flex-shrink:0}
+.fix-icon-warn{background:#fef9c3}
+.fix-icon-err{background:#fee2e2}
+.fix-title{font-size:0.875rem;font-weight:700;color:var(--text);margin-bottom:0.2rem}
+.fix-desc{font-size:0.8rem;color:var(--text2);line-height:1.6}
+
+@media(max-width:640px){
+  nav{padding:0 1rem}.page{padding:1.5rem 1rem 3rem}h1{font-size:1.5rem}
+  .score-card{grid-template-columns:1fr;text-align:center}
+  .score-dial{margin:0 auto}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .sentence-item{grid-template-columns:1fr auto}
+  .sent-len,.sent-reason{display:none}
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);--display:'DM Serif Display',Georgia,serif;--body:'Outfit',system-ui,sans-serif;--code:'DM Mono',monospace;--tx1:#0f0f12;--tx2:#54546a;--tx3:#9898b2;--rule:rgba(180,180,210,0.25);--rule2:rgba(180,180,210,0.45);--mist:#f4f4f8;--white:#ffffff;--ink:#0f0f12;--ease:cubic-bezier(0.16,1,0.3,1)}
+body{background:var(--mist);font-family:var(--body);-webkit-font-smoothing:antialiased}
+.nk-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;padding:0 2rem}
+.nk-nav-inner{width:100%;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.nk-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.nk-logo-mark{width:24px;height:24px;background:var(--grad);border-radius:6px;position:relative;overflow:hidden;flex-shrink:0}
+.nk-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%)}
+.nk-logo-text{font-family:var(--display);font-size:1.1rem;color:var(--tx1);letter-spacing:-0.01em;line-height:1}
+.nk-logo-text em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nk-breadcrumb{display:flex;align-items:center;gap:0.375rem;font-family:var(--code);font-size:0.68rem;color:var(--tx3);letter-spacing:0.04em}
+.nk-breadcrumb a{color:var(--tx3);text-decoration:none;transition:color 0.15s}
+.nk-breadcrumb a:hover{color:var(--tx1)}
+.nk-back{margin-left:auto;font-family:var(--code);font-size:0.65rem;color:var(--tx3);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s}
+.nk-back:hover{color:var(--tx1)}
+</style>
+</head>
+<body>
+<nav class="nk-nav">
+  <div class="nk-nav-inner">
+    <a class="nk-logo" href="../index.html"><div class="nk-logo-mark"></div><span class="nk-logo-text">Neat<em>kit</em></span></a>
+    <div class="nk-breadcrumb"><span>/</span><a href="../index.html">tools</a><span>/</span><span>ai detector</span></div>
+    <a class="nk-back" href="../index.html">← All tools</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>AI Text Detector</h1>
+  <p class="subtitle">Analyzes writing patterns to estimate AI involvement. Shows exactly which sentences are flagged and why — no guessing.</p>
+
+  <div class="disclaimer">
+    <span>⚠️</span>
+    <div>
+      <strong>Honest limitations:</strong>
+      No AI detector — including Turnitin's — is perfectly accurate. AI detection works on statistical patterns, not certainty. Human writing can be flagged as AI, and sophisticated AI writing can pass undetected. This tool tells you <em>what patterns it found and why</em>, not a verdict. Use it as a writing quality signal, not a judgment.
+    </div>
+  </div>
+
+  <div class="input-section">
+    <!-- Mode tabs -->
+    <div class="input-tabs">
+      <button class="input-tab active" id="tab-text" onclick="switchTab('text')">✏️ Paste text</button>
+      <button class="input-tab" id="tab-file" onclick="switchTab('file')">📎 Upload file</button>
+    </div>
+
+    <!-- Text mode -->
+    <div id="text-mode">
+      <div class="input-header">
+        <span class="input-label">Paste your text</span>
+        <span class="word-count" id="wc">0 words · 0 sentences</span>
+      </div>
+      <textarea id="input" placeholder="Paste the text you want to analyze here. For accurate results, use at least 150 words. The tool works best on full paragraphs, not bullet points or lists." oninput="updateCount()"></textarea>
+      <div class="input-footer">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+          <button class="btn-ghost" onclick="loadSample('ai')">Load AI sample</button>
+          <button class="btn-ghost" onclick="loadSample('human')">Load human sample</button>
+          <button class="btn-ghost" onclick="document.getElementById('input').value='';updateCount()">Clear</button>
+        </div>
+        <button class="btn-primary" id="analyze-btn" onclick="analyze()">Analyze text →</button>
+      </div>
+    </div>
+
+    <!-- File mode -->
+    <div id="file-mode" style="display:none">
+      <div class="file-drop show" id="file-drop">
+        <input type="file" id="file-input" accept=".txt,.pdf,.docx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="handleFile(this.files[0])">
+        <div class="file-drop-icon">📎</div>
+        <div class="file-drop-title">Drop a file here, or click to browse</div>
+        <div class="file-drop-sub">Supports .txt · .pdf · .docx &nbsp;·&nbsp; Max 10MB</div>
+      </div>
+
+      <div class="file-loaded" id="file-loaded">
+        <div class="file-loaded-icon" id="file-icon">📄</div>
+        <div style="flex:1;min-width:0">
+          <div class="file-loaded-name" id="file-name">filename.pdf</div>
+          <div class="file-loaded-meta" id="file-meta">0 KB · extracting text...</div>
+        </div>
+        <button class="file-clear" onclick="clearFile()" title="Remove file">✕</button>
+      </div>
+
+      <div class="file-parsing" id="file-parsing">
+        <div class="spinner"></div>
+        <span id="parse-status">Extracting text from file...</span>
+      </div>
+
+      <div style="margin-top:1rem;display:none" id="file-preview-wrap">
+        <div class="input-header">
+          <span class="input-label">Extracted text</span>
+          <span class="word-count" id="file-wc">0 words</span>
+        </div>
+        <div id="file-preview" style="background:var(--bg2);border-radius:var(--r-md);padding:1rem;font-size:0.875rem;line-height:1.7;color:var(--text2);max-height:180px;overflow-y:auto;font-family:var(--sans)"></div>
+      </div>
+
+      <div class="input-footer" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <div style="font-size:0.78rem;color:var(--text3)">File is read locally — never uploaded to any server</div>
+        <button class="btn-primary" id="analyze-file-btn" onclick="analyzeFile()" disabled>Analyze file →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <!-- Score card -->
+    <div class="score-card" id="score-card">
+      <div class="score-dial">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#f0f0f7" stroke-width="10"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke-width="10"
+            stroke-dasharray="326.7" stroke-dashoffset="326.7"
+            stroke-linecap="round" id="dial-arc" style="transition:stroke-dashoffset 0.8s ease,stroke 0.5s"/>
+        </svg>
+        <div class="score-dial-num">
+          <span class="score-big" id="score-num">0</span>
+          <span class="score-unit">AI score</span>
+        </div>
+      </div>
+      <div>
+        <div class="score-verdict" id="verdict">Analyzing...</div>
+        <div class="score-explain" id="verdict-explain"></div>
+        <div class="score-caveats" id="verdict-caveats"></div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-grid" id="metrics-grid"></div>
+
+    <!-- What to fix -->
+    <div class="fix-section" id="fix-section">
+      <div class="section-title" style="margin-bottom:0.875rem">What the analysis found</div>
+      <div id="fix-list"></div>
+    </div>
+
+    <!-- Annotated text -->
+    <div class="highlight-section">
+      <div class="section-title">
+        <span>Sentence-by-sentence breakdown</span>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#fecaca"></div>High risk</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fde68a"></div>Medium risk</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#bbf7d0"></div>Looks human</div>
+        </div>
+      </div>
+      <div class="annotated-text" id="annotated-text"></div>
+      <div class="sentence-list" id="sentence-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TAB SWITCHING ────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('tab-text').classList.toggle('active', tab==='text');
+  document.getElementById('tab-file').classList.toggle('active', tab==='file');
+  document.getElementById('text-mode').style.display = tab==='text' ? '' : 'none';
+  document.getElementById('file-mode').style.display = tab==='file' ? '' : 'none';
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────
+const fileDrop = document.getElementById('file-drop');
+fileDrop.addEventListener('dragover', e=>{e.preventDefault();fileDrop.classList.add('drag-over');});
+fileDrop.addEventListener('dragleave', e=>{if(!fileDrop.contains(e.relatedTarget))fileDrop.classList.remove('drag-over');});
+fileDrop.addEventListener('drop', e=>{e.preventDefault();fileDrop.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+
+let extractedText = '';
+
+function handleFile(file) {
+  if(!file) return;
+  if(file.size > 10*1024*1024) { alert('File too large. Max 10MB.'); return; }
+
+  const icons = {'application/pdf':'📕', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'📘', 'text/plain':'📄'};
+  const icon = icons[file.type] || '📄';
+
+  document.getElementById('file-icon').textContent = icon;
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-meta').textContent = formatFileSize(file.size) + ' · reading...';
+  document.getElementById('file-loaded').classList.add('visible');
+  document.getElementById('file-parsing').classList.add('visible');
+  document.getElementById('parse-status').textContent = 'Extracting text from file...';
+  document.getElementById('file-preview-wrap').style.display = 'none';
+  document.getElementById('analyze-file-btn').disabled = true;
+  extractedText = '';
+
+  if(file.type === 'text/plain' || file.name.endsWith('.txt')) {
+    const reader = new FileReader();
+    reader.onload = e => processExtracted(e.target.result, file.name, file.size);
+    reader.readAsText(file);
+  } else if(file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+    extractPDF(file);
+  } else if(file.name.endsWith('.docx')) {
+    extractDOCX(file);
+  } else {
+    showParseError('Unsupported file type. Use .txt, .pdf, or .docx');
+  }
+}
+
+function formatFileSize(b) { if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(2)+'MB'; }
+
+async function extractPDF(file) {
+  try {
+    document.getElementById('parse-status').textContent = 'Loading PDF parser...';
+    // Load PDF.js from CDN
+    if(!window.pdfjsLib) {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    document.getElementById('parse-status').textContent = 'Reading PDF pages...';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    let fullText = '';
+    for(let i = 1; i <= pdf.numPages; i++) {
+      document.getElementById('parse-status').textContent = `Reading page ${i} of ${pdf.numPages}...`;
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+    processExtracted(fullText, file.name, file.size);
+  } catch(e) {
+    showParseError('Could not read PDF: ' + e.message + '. Try copy-pasting the text instead.');
+  }
+}
+
+async function extractDOCX(file) {
+  try {
+    document.getElementById('parse-status').textContent = 'Loading Word document parser...';
+    if(!window.mammoth) {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+    }
+    document.getElementById('parse-status').textContent = 'Extracting text from Word document...';
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({arrayBuffer});
+    processExtracted(result.value, file.name, file.size);
+  } catch(e) {
+    showParseError('Could not read .docx file: ' + e.message);
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function processExtracted(text, filename, size) {
+  text = text.replace(/\s+/g, ' ').trim();
+  extractedText = text;
+  const words = text.split(/\s+/).filter(Boolean);
+
+  document.getElementById('file-parsing').classList.remove('visible');
+  document.getElementById('file-meta').textContent = formatFileSize(size) + ' · ' + words.length + ' words extracted';
+
+  if(words.length < 30) {
+    showParseError('Not enough text found (' + words.length + ' words). The file may be image-based or scanned — try copy-pasting the text instead.');
+    return;
+  }
+
+  // Show preview
+  const preview = text.substring(0, 600) + (text.length > 600 ? '...' : '');
+  document.getElementById('file-preview').textContent = preview;
+  document.getElementById('file-wc').textContent = words.length + ' words extracted';
+  document.getElementById('file-preview-wrap').style.display = 'block';
+  document.getElementById('analyze-file-btn').disabled = false;
+}
+
+function showParseError(msg) {
+  document.getElementById('file-parsing').classList.remove('visible');
+  document.getElementById('parse-status').textContent = msg;
+  document.getElementById('file-parsing').classList.add('visible');
+  document.querySelector('.spinner').style.display = 'none';
+}
+
+function clearFile() {
+  extractedText = '';
+  document.getElementById('file-loaded').classList.remove('visible');
+  document.getElementById('file-parsing').classList.remove('visible');
+  document.getElementById('file-preview-wrap').style.display = 'none';
+  document.getElementById('analyze-file-btn').disabled = true;
+  document.getElementById('file-input').value = '';
+  document.querySelector('.spinner').style.display = '';
+}
+
+function analyzeFile() {
+  if(!extractedText || extractedText.split(/\s+/).length < 50) {
+    alert('Not enough text to analyze. Need at least 50 words.');
+    return;
+  }
+  // Put extracted text into the main input and run analysis
+  document.getElementById('input').value = extractedText;
+  const btn = document.getElementById('analyze-file-btn');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+  setTimeout(() => {
+    const result = runAnalysis(extractedText);
+    renderResults(result);
+    btn.disabled = false; btn.textContent = 'Analyze file →';
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 400);
+}
+
+// ── SAMPLE TEXTS ────────────────────────────────────────────
+const SAMPLES = {
+  ai: `Artificial intelligence has fundamentally transformed the landscape of modern technology. The implications of this transformation are far-reaching and multifaceted. Organizations across various industries are increasingly leveraging AI-powered solutions to enhance operational efficiency and drive innovation. Furthermore, the integration of machine learning algorithms has enabled unprecedented levels of data analysis and pattern recognition.
+
+The benefits of artificial intelligence extend beyond mere automation. AI systems demonstrate remarkable capabilities in natural language processing, computer vision, and predictive analytics. These advancements have significant implications for workforce development and economic productivity. Moreover, the ethical considerations surrounding AI deployment require careful examination and robust governance frameworks.
+
+It is important to note that the trajectory of AI development presents both opportunities and challenges. Stakeholders must collaborate to ensure responsible innovation that aligns with societal values and promotes equitable outcomes. The future of artificial intelligence will be shaped by the decisions made today regarding research priorities, regulatory frameworks, and ethical standards.`,
+
+  human: `I started learning to cook properly during my third year of university, mostly out of necessity — the dining hall closed early on weekends and I was broke. My first real attempt at a proper meal was a disaster. I tried to make my mum's jollof rice and somehow managed to burn the bottom while the top remained completely uncooked. The smoke alarm went off twice.
+
+What I didn't expect was how much I'd end up enjoying it. There's something weirdly satisfying about taking raw ingredients and making something people actually want to eat. My flatmates started showing up whenever I cooked, which was both flattering and slightly annoying when I'd only made enough for myself.
+
+Three years later I'm not claiming to be some kind of chef, but I can feed people without incident. I still mess things up constantly — last week I forgot salt in bread and didn't notice until my friend politely said it tasted "interesting." Cooking has mostly taught me that failure is just a slightly worse version of dinner.`
+};
+
+function loadSample(type) {
+  document.getElementById('input').value = SAMPLES[type];
+  updateCount();
+}
+
+function updateCount() {
+  const text = document.getElementById('input').value.trim();
+  const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+  const sents = text ? splitSentences(text).length : 0;
+  document.getElementById('wc').textContent = `${words} words · ${sents} sentences`;
+}
+
+// ── SENTENCE SPLITTER ───────────────────────────────────────
+function splitSentences(text) {
+  // Split on sentence-ending punctuation, keep punctuation with sentence
+  const raw = text.match(/[^.!?]*[.!?]+["']?|[^.!?]+$/g) || [];
+  return raw.map(s => s.trim()).filter(s => s.length > 10);
+}
+
+// ── ANALYSIS ENGINE ─────────────────────────────────────────
+function analyze() {
+  const text = document.getElementById('input').value.trim();
+  if (!text || text.split(/\s+/).length < 50) {
+    alert('Please enter at least 50 words for meaningful analysis.');
+    return;
+  }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+
+  setTimeout(() => {
+    const result = runAnalysis(text);
+    renderResults(result);
+    btn.disabled = false; btn.textContent = 'Analyze text →';
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 400);
+}
+
+function runAnalysis(text) {
+  const sentences = splitSentences(text);
+  const words = text.split(/\s+/).filter(Boolean);
+
+  // ── 1. BURSTINESS ─────────────────────────────────────────
+  // Human writing varies sentence length wildly. AI is more uniform.
+  const lengths = sentences.map(s => s.split(/\s+/).length);
+  const meanLen = lengths.reduce((a,b)=>a+b,0) / lengths.length;
+  const variance = lengths.reduce((a,b)=>a+Math.pow(b-meanLen,2),0) / lengths.length;
+  const stdDev = Math.sqrt(variance);
+  const cv = stdDev / meanLen; // coefficient of variation — higher = more human-like burstiness
+  const burstinessScore = Math.max(0, Math.min(100, 100 - cv * 120));
+
+  // ── 2. LEXICAL DIVERSITY ──────────────────────────────────
+  // AI tends to repeat similar vocabulary patterns
+  const cleanWords = words.map(w => w.toLowerCase().replace(/[^a-z]/g,''));
+  const uniqueWords = new Set(cleanWords.filter(w=>w.length>3));
+  const ttr = uniqueWords.size / cleanWords.filter(w=>w.length>3).length;
+  const lexicalScore = Math.max(0, Math.min(100, (0.72 - ttr) * 300));
+
+  // ── 3. TRANSITION WORD OVERUSE ────────────────────────────
+  const aiTransitions = ['furthermore','moreover','additionally','however','therefore','consequently','nevertheless','subsequently','in conclusion','it is important','it is worth noting','it should be noted','this demonstrates','this highlights','in summary','to summarize','in essence','as a result','due to the fact','in order to','it is clear that','needless to say','at the end of the day','it is noteworthy'];
+  const textLower = text.toLowerCase();
+  const transitionHits = aiTransitions.filter(t => textLower.includes(t));
+  const transitionScore = Math.min(100, transitionHits.length * 18);
+
+  // ── 4. PASSIVE VOICE RATIO ────────────────────────────────
+  const passivePatterns = /\b(is|are|was|were|be|been|being)\s+\w+ed\b/gi;
+  const passiveMatches = (text.match(passivePatterns) || []).length;
+  const passiveRate = passiveMatches / sentences.length;
+  const passiveScore = Math.min(100, passiveRate * 120);
+
+  // ── 5. HEDGE PHRASE OVERUSE ───────────────────────────────
+  const hedges = ['various','significant','important','essential','crucial','fundamental','comprehensive','robust','innovative','leverag','implement','utiliz','facilitat','endeavor','demonstrate','exhibit','provide','ensure','maintain','consider'];
+  let hedgeCount = 0;
+  hedges.forEach(h => { const re = new RegExp(h, 'gi'); const m = text.match(re); if(m) hedgeCount += m.length; });
+  const hedgeScore = Math.min(100, (hedgeCount / words.length) * 800);
+
+  // ── 6. SENTENCE STARTER VARIETY ───────────────────────────
+  const starters = sentences.map(s => s.split(/\s+/)[0]?.toLowerCase() || '');
+  const uniqueStarters = new Set(starters);
+  const starterVariety = uniqueStarters.size / starters.length;
+  const starterScore = Math.max(0, Math.min(100, (0.6 - starterVariety) * 200));
+
+  // ── SENTENCE SCORING ──────────────────────────────────────
+  const scoredSentences = sentences.map(sent => {
+    const sentLower = sent.toLowerCase();
+    const sentWords = sent.split(/\s+/);
+    let risk = 0;
+    const flags = [];
+
+    // Transition words
+    const sentTrans = aiTransitions.filter(t => sentLower.includes(t));
+    if(sentTrans.length > 0) { risk += 35; flags.push(`transition: "${sentTrans[0]}"`); }
+
+    // Very uniform length (close to mean, suspicious if everything is)
+    const lenDiff = Math.abs(sentWords.length - meanLen);
+    if(lenDiff < 2 && sentences.length > 4) { risk += 10; }
+
+    // Passive voice in sentence
+    if(passivePatterns.test(sent)) { risk += 20; flags.push('passive voice'); passivePatterns.lastIndex=0; }
+
+    // Hedge words
+    const sentHedges = hedges.filter(h => sentLower.includes(h));
+    if(sentHedges.length >= 2) { risk += 25; flags.push(`vague: "${sentHedges[0]}"`); }
+
+    // Opening with AI-common starters
+    const aiStarters = ['the','this','these','it is','there are','in','as'];
+    if(aiStarters.some(s => sentLower.startsWith(s))) { risk += 8; }
+
+    // Very long sentence with many clauses (AI loves complexity)
+    if(sentWords.length > 30) { risk += 15; flags.push('very long sentence'); }
+
+    risk = Math.min(100, risk);
+    return { text: sent, risk, flags, words: sentWords.length };
+  });
+
+  // ── OVERALL SCORE ─────────────────────────────────────────
+  const weights = { burstiness: 0.25, lexical: 0.15, transition: 0.25, passive: 0.10, hedge: 0.15, starter: 0.10 };
+  const overall = Math.round(
+    burstinessScore * weights.burstiness +
+    lexicalScore * weights.lexical +
+    transitionScore * weights.transition +
+    passiveScore * weights.passive +
+    hedgeScore * weights.hedge +
+    starterScore * weights.starter
+  );
+
+  return {
+    overall,
+    metrics: {
+      burstiness: { val: Math.round(burstinessScore), raw: cv.toFixed(2), label: 'Sentence uniformity', desc: 'How uniform sentence lengths are. AI writing tends to be very consistent; human writing varies wildly.', inverse: true },
+      lexical: { val: Math.round(lexicalScore), raw: (ttr*100).toFixed(0)+'%', label: 'Lexical diversity', desc: 'Ratio of unique words. AI often repeats similar vocabulary patterns across a text.', inverse: false },
+      transition: { val: Math.round(transitionScore), raw: transitionHits.length + ' found', label: 'AI transition words', desc: `Words like "furthermore", "moreover", "consequently" — common in AI, rare in natural writing.`, hits: transitionHits },
+      passive: { val: Math.round(passiveScore), raw: passiveMatches + ' instances', label: 'Passive voice', desc: 'AI tends toward passive constructions. Human writers use active voice more naturally.', inverse: false },
+      hedge: { val: Math.round(hedgeScore), raw: hedgeCount + ' found', label: 'Vague language', desc: 'Words like "significant", "various", "robust", "leverage" — common AI filler with little meaning.', inverse: false },
+      starter: { val: Math.round(starterScore), raw: Math.round(starterVariety*100)+'%', label: 'Sentence variety', desc: 'How varied sentence openings are. AI often starts many sentences with "The", "This", "These".', inverse: false }
+    },
+    sentences: scoredSentences,
+    transitionHits,
+    hedgeCount,
+    wordCount: words.length,
+    sentenceCount: sentences.length,
+    avgSentLen: Math.round(meanLen),
+    cv: cv.toFixed(2)
+  };
+}
+
+// ── RENDER ───────────────────────────────────────────────────
+function renderResults(r) {
+  const score = r.overall;
+
+  // Score dial
+  const circumference = 2 * Math.PI * 52;
+  const offset = circumference - (score / 100) * circumference;
+  const arc = document.getElementById('dial-arc');
+  arc.style.strokeDashoffset = offset;
+  const color = score >= 70 ? '#dc2626' : score >= 40 ? '#d97706' : '#16a34a';
+  arc.style.stroke = color;
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('score-num').style.color = color;
+  document.querySelector('.score-verdict').style.color = color;
+
+  // Verdict
+  let verdict, explain, caveats;
+  if(score >= 75) {
+    verdict = 'Likely AI-generated';
+    explain = `This text shows strong statistical patterns associated with AI writing — highly uniform sentence structure, heavy use of transitional phrases, and vocabulary patterns typical of language models. ${r.transitionHits.length > 0 ? `Flagged transitions: "${r.transitionHits.slice(0,3).join('", "')}"` : ''}`;
+    caveats = 'Note: some human writers — especially non-native speakers or those trained in formal academic style — may write this way naturally.';
+  } else if(score >= 50) {
+    verdict = 'Mixed signals — may be AI-assisted';
+    explain = `The writing shows some AI-like patterns but also human elements. This could indicate AI assistance with human editing, or a formal writing style that happens to share characteristics with AI output.`;
+    caveats = 'This range is the most uncertain. The patterns are present but not conclusive.';
+  } else if(score >= 30) {
+    verdict = 'Probably human-written';
+    explain = `The text shows mostly human writing patterns — varied sentence structure, natural vocabulary, and few of the formulaic transitions common in AI output. A few flagged sentences don't necessarily indicate AI.`;
+    caveats = 'Short texts, bullet points, and highly technical writing often score higher than they should.';
+  } else {
+    verdict = 'Strongly human-written';
+    explain = `This text shows the natural irregularity, variation, and idiosyncrasy characteristic of human writing. The sentence lengths vary, vocabulary feels natural, and AI-associated patterns are largely absent.`;
+    caveats = 'No AI detector is 100% accurate. This is a statistical assessment, not a certainty.';
+  }
+
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('verdict-explain').textContent = explain;
+  document.getElementById('verdict-caveats').textContent = caveats;
+
+  // Metrics
+  const mg = document.getElementById('metrics-grid');
+  mg.innerHTML = Object.entries(r.metrics).map(([key, m]) => {
+    const badgeLevel = m.val >= 65 ? 'high' : m.val >= 35 ? 'med' : 'low';
+    const badgeText = m.val >= 65 ? 'High risk' : m.val >= 35 ? 'Medium' : 'Low risk';
+    const barColor = m.val >= 65 ? '#ef4444' : m.val >= 35 ? '#f59e0b' : '#22c55e';
+    return `<div class="metric-card">
+      <div class="metric-head">
+        <span class="metric-name">${m.label}</span>
+        <span class="metric-badge badge-${badgeLevel}">${badgeText}</span>
+      </div>
+      <div class="metric-val">${m.raw}</div>
+      <div class="metric-desc">${m.desc}</div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:${m.val}%;background:${barColor}"></div></div>
+    </div>`;
+  }).join('');
+
+  // What to fix
+  const fixes = [];
+  if(r.metrics.transition.val >= 35) fixes.push({ level:'err', icon:'⚠️', title:`Replace AI transition words (${r.transitionHits.length} found)`, desc:`Found: "${r.transitionHits.join('", "')}" — These phrases are heavily overrepresented in AI text. Replace with more direct connections between ideas, or remove them entirely.` });
+  if(r.metrics.burstiness.val >= 50) fixes.push({ level:'err', icon:'📏', title:'Vary your sentence lengths', desc:`Average sentence: ${r.avgSentLen} words. Your sentences are too uniform (variation score: ${r.cv}). Mix short punchy sentences with longer ones. Break a long sentence into two. Combine two short ones.` });
+  if(r.metrics.hedge.val >= 35) fixes.push({ level:'warn', icon:'🔍', title:'Replace vague language with specifics', desc:`Words like "significant", "various", "robust", and "leverage" add no meaning. Replace with specific numbers, names, or concrete descriptions.` });
+  if(r.metrics.passive.val >= 35) fixes.push({ level:'warn', icon:'✍️', title:'Rewrite passive sentences as active', desc:`${r.metrics.passive.raw} passive voice constructions found. Instead of "This was demonstrated by the study", write "The study demonstrated this."` });
+  if(r.metrics.lexical.val >= 35) fixes.push({ level:'warn', icon:'📚', title:'Diversify your vocabulary', desc:`Lexical diversity is lower than expected for human writing. Try not to repeat the same words — use synonyms, rephrase ideas differently, or vary your sentence structures.` });
+  if(fixes.length === 0) fixes.push({ level:'low', icon:'✅', title:'No major patterns found', desc:'The writing shows natural human variation. If you got a high score despite this, the issue may be in specific flagged sentences below.' });
+
+  document.getElementById('fix-list').innerHTML = fixes.map(f => `
+    <div class="fix-item">
+      <div class="fix-icon ${f.level==='err'?'fix-icon-err':'fix-icon-warn'}">${f.icon}</div>
+      <div><div class="fix-title">${f.title}</div><div class="fix-desc">${f.desc}</div></div>
+    </div>
+  `).join('');
+
+  // Annotated text
+  const annotated = r.sentences.map(s => {
+    const cls = s.risk >= 60 ? 'span-ai-high' : s.risk >= 30 ? 'span-ai-med' : s.risk > 0 ? 'span-ai-low' : 'span-human';
+    const title = s.flags.length ? `Flagged: ${s.flags.join(', ')}` : '';
+    return `<span class="${cls}" title="${title}">${s.text} </span>`;
+  }).join('');
+  document.getElementById('annotated-text').innerHTML = annotated;
+
+  // Sentence list (only flagged)
+  const flagged = r.sentences.filter(s => s.risk >= 25).sort((a,b)=>b.risk-a.risk).slice(0,10);
+  document.getElementById('sentence-list').innerHTML = flagged.length === 0
+    ? '<div style="font-size:0.82rem;color:var(--text3);padding:0.5rem 0">No individual sentences were significantly flagged.</div>'
+    : flagged.map(s => `
+      <div class="sentence-item ${s.risk>=60?'flagged-high':s.risk>=30?'flagged-med':''}">
+        <div class="sentence-text">"${s.text}"</div>
+        <div class="sent-len">${s.words}w</div>
+        <div class="sent-score" style="color:${s.risk>=60?'#dc2626':s.risk>=30?'#d97706':'#16a34a'}">${s.risk}%</div>
+        <div class="sent-reason">${s.flags[0]||''}</div>
+      </div>
+    `).join('');
+}
+</script>
+</body>
+</html>

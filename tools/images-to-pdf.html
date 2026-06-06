@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="images to pdf, jpg to pdf, png to pdf, convert photo to pdf free, multiple images to pdf, image to pdf converter online free">
+<meta name="description" content="Convert JPG, PNG, WebP images to PDF free. Add multiple images, reorder pages, choose paper size. No upload. Instant download.">
+<title>Convert Images to PDF Free — JPG PNG to PDF Online | Neatkit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);
+  --bg:#fff;--bg2:#f7f7fb;--bg3:#f0f0f7;
+  --glass:rgba(255,255,255,0.75);
+  --text:#1a1a2e;--text2:#5a5a7a;--text3:#9898b8;
+  --border:rgba(180,180,220,0.35);--border2:rgba(180,180,220,0.6);
+  --accent:#7b8fd4;--accent-light:rgba(123,143,212,0.1);
+  --success:#22c55e;--error:#ef4444;
+  --shadow-sm:0 1px 3px rgba(100,100,160,0.08);
+  --shadow-md:0 4px 16px rgba(100,100,160,0.10);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg2);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+nav{position:sticky;top:0;z-index:200;background:var(--glass);backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.9);padding:0 2rem;display:flex;align-items:center;height:60px;gap:1rem}
+.logo{display:flex;align-items:center;gap:0.625rem;text-decoration:none;font-weight:700;font-size:1.1rem;color:var(--text)}
+.logo-mark{width:30px;height:30px;background:var(--grad);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.breadcrumb{color:var(--text3);font-size:0.82rem;display:flex;align-items:center;gap:0.4rem}
+.breadcrumb a{color:var(--accent);text-decoration:none}
+.page{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+h1{font-size:1.875rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem}
+.subtitle{color:var(--text2);font-size:0.925rem;margin-bottom:2rem}
+
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--r-xl);padding:3rem 2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);position:relative}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:2.5rem;margin-bottom:0.875rem}
+.drop-title{font-size:1.05rem;font-weight:700;margin-bottom:0.35rem}
+.drop-sub{font-size:0.82rem;color:var(--text3)}
+
+.controls{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin:1.5rem 0;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center}
+.ctrl-group{display:flex;flex-direction:column;gap:0.4rem}
+.ctrl-label{font-size:0.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.seg-btns{display:flex;background:var(--bg3);border-radius:var(--r-sm);padding:3px;gap:2px}
+.seg-btn{background:transparent;border:none;color:var(--text2);font-family:var(--sans);font-size:0.8rem;font-weight:600;padding:0.375rem 0.875rem;border-radius:6px;cursor:pointer;transition:all 0.15s}
+.seg-btn.active{background:var(--bg);color:var(--text);box-shadow:var(--shadow-sm)}
+
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.875rem;margin-bottom:1.5rem}
+.img-card{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;cursor:grab;transition:all 0.15s;position:relative}
+.img-card:active{cursor:grabbing}
+.img-card.dragging{opacity:0.4;transform:scale(0.97)}
+.img-card.drag-target{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.img-thumb{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.img-footer{padding:0.5rem 0.625rem;display:flex;align-items:center;justify-content:space-between}
+.img-num{font-family:var(--mono);font-size:0.7rem;color:var(--text3)}
+.img-remove{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:1rem;line-height:1;padding:2px;border-radius:4px;transition:color 0.12s}
+.img-remove:hover{color:var(--error)}
+.img-drag-hint{position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.45);color:white;font-size:0.6rem;padding:2px 6px;border-radius:100px;letter-spacing:0.04em}
+
+.add-more-btn{border:2px dashed var(--border2);border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;cursor:pointer;transition:all 0.2s;background:var(--bg);color:var(--text3);font-size:0.8rem;font-weight:600;aspect-ratio:1;position:relative}
+.add-more-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.add-more-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.add-more-icon{font-size:1.5rem}
+
+.actions{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;background:var(--grad);color:white;font-family:var(--sans);font-size:0.9rem;font-weight:700;padding:0.875rem 2rem;border-radius:100px;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:box-shadow 0.15s,transform 0.15s}
+.btn-primary:hover:not(:disabled){box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.btn-outline{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--text2);font-family:var(--sans);font-size:0.875rem;font-weight:600;padding:0.875rem 1.5rem;border-radius:100px;border:1.5px solid var(--border2);cursor:pointer;transition:all 0.15s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+.progress-wrap{display:none;flex:1;min-width:200px}
+.progress-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--grad);border-radius:4px;transition:width 0.3s;width:0%}
+.progress-label{font-size:0.75rem;color:var(--text3);margin-top:0.35rem;font-family:var(--mono)}
+
+.result-card{background:var(--bg);border:1.5px solid rgba(34,197,94,0.3);border-radius:var(--r-xl);padding:2rem;margin-top:2rem;text-align:center;display:none}
+.result-icon{font-size:2.5rem;margin-bottom:0.75rem}
+.result-title{font-size:1.1rem;font-weight:700;margin-bottom:0.3rem}
+.result-sub{font-size:0.85rem;color:var(--text2);margin-bottom:1.5rem}
+
+@media(max-width:600px){
+  nav{padding:0 1rem}.page{padding:1.5rem 1rem 3rem}h1{font-size:1.5rem}
+  .actions{flex-direction:column}.btn-primary,.btn-outline{width:100%;justify-content:center}
+  .img-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);--display:'DM Serif Display',Georgia,serif;--body:'Outfit',system-ui,sans-serif;--code:'DM Mono',monospace;--tx1:#0f0f12;--tx2:#54546a;--tx3:#9898b2;--rule:rgba(180,180,210,0.25);--rule2:rgba(180,180,210,0.45);--mist:#f4f4f8;--white:#ffffff;--ink:#0f0f12;--ease:cubic-bezier(0.16,1,0.3,1)}
+body{background:var(--mist);font-family:var(--body);-webkit-font-smoothing:antialiased}
+.nk-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;padding:0 2rem}
+.nk-nav-inner{width:100%;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.nk-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.nk-logo-mark{width:24px;height:24px;background:var(--grad);border-radius:6px;position:relative;overflow:hidden;flex-shrink:0}
+.nk-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%)}
+.nk-logo-text{font-family:var(--display);font-size:1.1rem;color:var(--tx1);letter-spacing:-0.01em;line-height:1}
+.nk-logo-text em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nk-breadcrumb{display:flex;align-items:center;gap:0.375rem;font-family:var(--code);font-size:0.68rem;color:var(--tx3);letter-spacing:0.04em}
+.nk-breadcrumb a{color:var(--tx3);text-decoration:none;transition:color 0.15s}
+.nk-breadcrumb a:hover{color:var(--tx1)}
+.nk-back{margin-left:auto;font-family:var(--code);font-size:0.65rem;color:var(--tx3);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s}
+.nk-back:hover{color:var(--tx1)}
+</style>
+</head>
+<body>
+<nav class="nk-nav">
+  <div class="nk-nav-inner">
+    <a class="nk-logo" href="../index.html"><div class="nk-logo-mark"></div><span class="nk-logo-text">Neat<em>kit</em></span></a>
+    <div class="nk-breadcrumb"><span>/</span><a href="../index.html">tools</a><span>/</span><span>images to pdf</span></div>
+    <a class="nk-back" href="../index.html">← All tools</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Images to PDF</h1>
+  <p class="subtitle">Convert JPG, PNG, or WebP images into a PDF. Drag to reorder pages. Runs entirely in your browser — nothing is uploaded.</p>
+
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple>
+    <div class="drop-icon">🖼️</div>
+    <div class="drop-title">Drop images here, or click to browse</div>
+    <div class="drop-sub">JPG · PNG · WebP · Select multiple files · Drag to reorder</div>
+  </div>
+
+  <div id="workspace" style="display:none">
+    <div class="controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Page size</span>
+        <div class="seg-btns" id="size-btns">
+          <button class="seg-btn active" onclick="setPageSize('a4')">A4</button>
+          <button class="seg-btn" onclick="setPageSize('letter')">Letter</button>
+          <button class="seg-btn" onclick="setPageSize('auto')">Auto (fit image)</button>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">Orientation</span>
+        <div class="seg-btns" id="orient-btns">
+          <button class="seg-btn active" onclick="setOrient('portrait')">Portrait</button>
+          <button class="seg-btn" onclick="setOrient('landscape')">Landscape</button>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">Image fit</span>
+        <div class="seg-btns" id="fit-btns">
+          <button class="seg-btn active" onclick="setFit('fit')">Fit page</button>
+          <button class="seg-btn" onclick="setFit('fill')">Fill page</button>
+          <button class="seg-btn" onclick="setFit('actual')">Actual size</button>
+        </div>
+      </div>
+      <div class="ctrl-group" style="margin-left:auto">
+        <span class="ctrl-label">Images loaded</span>
+        <span style="font-family:var(--mono);font-size:1.25rem;font-weight:700;color:var(--accent)" id="img-count">0</span>
+      </div>
+    </div>
+
+    <div class="img-grid" id="img-grid"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="convert-btn" onclick="convertToPDF()">✦ Convert to PDF</button>
+      <button class="btn-outline" onclick="clearAll()">Clear all</button>
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+        <div class="progress-label" id="prog-label">Processing...</div>
+      </div>
+    </div>
+
+    <div class="result-card" id="result-card">
+      <div class="result-icon">✅</div>
+      <div class="result-title" id="result-title">PDF created successfully</div>
+      <div class="result-sub" id="result-sub"></div>
+      <button class="btn-primary" id="dl-btn" onclick="downloadPDF()">↓ Download PDF</button>
+      <br><br>
+      <button class="btn-outline" onclick="resetResult()" style="margin-top:0.5rem">Convert more images</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+let images = []; // {file, dataURL, id}
+let pageSize = 'a4';
+let orient = 'portrait';
+let fit = 'fit';
+let pdfBytes = null;
+let dragSrcIdx = null;
+
+const PAGE_SIZES = {
+  a4:     { w: 595.28, h: 841.89 },
+  letter: { w: 612,    h: 792    }
+};
+
+function toast(msg) {
+  const t = document.createElement('div');
+  Object.assign(t.style,{position:'fixed',bottom:'1.5rem',left:'50%',transform:'translateX(-50%)',background:'#1a1a2e',color:'white',padding:'0.75rem 1.5rem',borderRadius:'100px',fontSize:'0.875rem',fontWeight:'500',zIndex:'9999',boxShadow:'0 8px 32px rgba(100,100,160,0.25)'});
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},2500);
+}
+
+function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(2)+'MB';}
+
+// Drop zone
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',e=>{if(!dz.contains(e.relatedTarget))dz.classList.remove('drag-over');});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');loadFiles([...e.dataTransfer.files]);});
+document.getElementById('file-input').addEventListener('change',e=>{loadFiles([...e.target.files]);e.target.value='';});
+
+function loadFiles(files) {
+  const imgFiles = files.filter(f=>f.type.startsWith('image/'));
+  if(!imgFiles.length){toast('Please select image files');return;}
+  let loaded = 0;
+  imgFiles.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e => {
+      images.push({file, dataURL:e.target.result, id:Date.now()+Math.random()});
+      loaded++;
+      if(loaded===imgFiles.length){
+        dz.style.display='none';
+        document.getElementById('workspace').style.display='';
+        renderGrid();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderGrid() {
+  document.getElementById('img-count').textContent = images.length;
+  const grid = document.getElementById('img-grid');
+  grid.innerHTML = images.map((img,i)=>`
+    <div class="img-card" draggable="true" data-idx="${i}"
+      ondragstart="onDragStart(event,${i})" ondragover="onDragOver(event,${i})"
+      ondrop="onDrop(event,${i})" ondragend="onDragEnd()">
+      <div class="img-drag-hint">⠿ drag</div>
+      <img class="img-thumb" src="${img.dataURL}" alt="Image ${i+1}">
+      <div class="img-footer">
+        <span class="img-num">Page ${i+1}</span>
+        <button class="img-remove" onclick="removeImg(${i})" title="Remove">✕</button>
+      </div>
+    </div>
+  `).join('') + `
+    <div class="add-more-btn">
+      <input type="file" accept="image/jpeg,image/png,image/webp" multiple onchange="addMore(this)">
+      <div class="add-more-icon">＋</div>
+      <span>Add more</span>
+    </div>
+  `;
+}
+
+function addMore(input) {
+  loadFiles([...input.files]);
+  input.value='';
+}
+
+function removeImg(i) {
+  images.splice(i,1);
+  if(!images.length){clearAll();return;}
+  renderGrid();
+}
+
+function onDragStart(e,i){dragSrcIdx=i;setTimeout(()=>e.target.classList.add('dragging'),0);}
+function onDragOver(e,i){e.preventDefault();document.querySelectorAll('.img-card').forEach((c,j)=>c.classList.toggle('drag-target',j===i&&i!==dragSrcIdx));}
+function onDrop(e,i){
+  e.preventDefault();
+  if(dragSrcIdx===null||dragSrcIdx===i)return;
+  const moved=images.splice(dragSrcIdx,1)[0];
+  images.splice(i,0,moved);
+  renderGrid();
+}
+function onDragEnd(){dragSrcIdx=null;document.querySelectorAll('.img-card').forEach(c=>c.classList.remove('dragging','drag-target'));}
+
+function setPageSize(s){pageSize=s;document.querySelectorAll('#size-btns .seg-btn').forEach((b,i)=>b.classList.toggle('active',['a4','letter','auto'][i]===s));}
+function setOrient(o){orient=o;document.querySelectorAll('#orient-btns .seg-btn').forEach((b,i)=>b.classList.toggle('active',['portrait','landscape'][i]===o));}
+function setFit(f){fit=f;document.querySelectorAll('#fit-btns .seg-btn').forEach((b,i)=>b.classList.toggle('active',['fit','fill','actual'][i]===f));}
+
+async function convertToPDF() {
+  if(!images.length){toast('No images loaded');return;}
+  const btn = document.getElementById('convert-btn');
+  btn.disabled=true; btn.textContent='Creating PDF...';
+  const pw = document.getElementById('progress-wrap');
+  const pf = document.getElementById('prog-fill');
+  const pl = document.getElementById('prog-label');
+  pw.style.display='block';
+  document.getElementById('result-card').style.display='none';
+
+  try {
+    const pdf = await PDFLib.PDFDocument.create();
+
+    for(let i=0;i<images.length;i++){
+      pf.style.width = Math.round((i/images.length)*90)+'%';
+      pl.textContent = `Adding image ${i+1} of ${images.length}...`;
+      await new Promise(r=>setTimeout(r,10));
+
+      const img = images[i];
+      let embedded;
+      if(img.file.type==='image/png'){
+        embedded = await pdf.embedPng(await img.file.arrayBuffer());
+      } else {
+        embedded = await pdf.embedJpg(await img.file.arrayBuffer());
+      }
+
+      const iw = embedded.width, ih = embedded.height;
+      let pw2, ph2;
+
+      if(pageSize==='auto'){
+        pw2=iw; ph2=ih;
+      } else {
+        const dims = PAGE_SIZES[pageSize];
+        pw2 = orient==='landscape' ? dims.h : dims.w;
+        ph2 = orient==='landscape' ? dims.w : dims.h;
+      }
+
+      const page = pdf.addPage([pw2, ph2]);
+
+      if(pageSize==='auto' || fit==='actual'){
+        page.drawImage(embedded,{x:0,y:0,width:iw,height:ih});
+      } else {
+        const scaleX = pw2/iw, scaleY = ph2/ih;
+        let scale, x=0, y=0;
+        if(fit==='fit'){
+          scale = Math.min(scaleX,scaleY);
+          x = (pw2-iw*scale)/2;
+          y = (ph2-ih*scale)/2;
+        } else { // fill
+          scale = Math.max(scaleX,scaleY);
+          x = (pw2-iw*scale)/2;
+          y = (ph2-ih*scale)/2;
+        }
+        page.drawImage(embedded,{x,y,width:iw*scale,height:ih*scale});
+      }
+    }
+
+    pf.style.width='95%'; pl.textContent='Finalizing...';
+    await new Promise(r=>setTimeout(r,50));
+    pdfBytes = await pdf.save();
+    pf.style.width='100%';
+
+    document.getElementById('result-title').textContent=`✓ PDF created — ${images.length} page${images.length>1?'s':''}`;
+    document.getElementById('result-sub').textContent=`File size: ${fmt(pdfBytes.length)}`;
+    document.getElementById('result-card').style.display='block';
+    document.getElementById('result-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+  } catch(e){toast('Error: '+e.message);}
+
+  pw.style.display='none';
+  btn.disabled=false; btn.textContent='✦ Convert to PDF';
+}
+
+function downloadPDF(){
+  if(!pdfBytes)return;
+  const blob=new Blob([pdfBytes],{type:'application/pdf'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='neatkit-images.pdf';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+
+function clearAll(){
+  images=[];pdfBytes=null;
+  dz.style.display='';
+  document.getElementById('workspace').style.display='none';
+  document.getElementById('result-card').style.display='none';
+}
+
+function resetResult(){
+  pdfBytes=null;
+  document.getElementById('result-card').style.display='none';
+  document.getElementById('prog-fill').style.width='0%';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Cloudflare Pages — _headers
+# These run on the free plan with zero config needed
+
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=()
+  X-XSS-Protection: 1; mode=block
+
+# Cache JS/CSS assets aggressively (1 year) since they're content-hashed
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache images
+/*.png
+  Cache-Control: public, max-age=604800
+/*.jpg
+  Cache-Control: public, max-age=604800
+/*.webp
+  Cache-Control: public, max-age=604800
+/*.svg
+  Cache-Control: public, max-age=604800
+
+# HTML — short cache so updates propagate fast
+/*.html
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# Sitemap
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+  Content-Type: application/xml
+
+# robots.txt
+/robots.txt
+  Cache-Control: public, max-age=86400

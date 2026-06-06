@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="resize image online free, change image size, resize photo, image resizer, crop image, resize jpg, resize png, change photo dimensions online">
+<meta name="description" content="Free image resizer. Resize photos to exact pixels or percentage. Lock aspect ratio. Download instantly. No signup required.">
+<title>Resize Image Online Free — Change Photo Dimensions | Neatkit</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --grad: linear-gradient(135deg, #b8c4e8, #cfc0dd, #e8cdb0);
+  --bg: #fff; --bg2: #f7f7fb; --bg3: #f0f0f7;
+  --glass: rgba(255,255,255,0.75);
+  --text: #1a1a2e; --text2: #5a5a7a; --text3: #9898b8;
+  --border: rgba(180,180,220,0.35); --border2: rgba(180,180,220,0.6);
+  --accent: #7b8fd4; --accent-light: rgba(123,143,212,0.1);
+  --success: #22c55e; --error: #ef4444;
+  --shadow-sm: 0 1px 3px rgba(100,100,160,0.08);
+  --shadow-md: 0 4px 16px rgba(100,100,160,0.10);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px;
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body { background:var(--bg2); color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased; min-height:100vh; }
+
+nav { position:sticky;top:0;z-index:200;background:var(--glass);backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.9);padding:0 2rem;display:flex;align-items:center;height:60px;gap:1rem; }
+.logo { display:flex;align-items:center;gap:0.625rem;text-decoration:none;font-weight:700;font-size:1.1rem;color:var(--text); }
+.logo-mark { width:30px;height:30px;background:var(--grad);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px; }
+.breadcrumb { color:var(--text3);font-size:0.82rem;display:flex;align-items:center;gap:0.4rem; }
+.breadcrumb a { color:var(--accent);text-decoration:none; }
+
+.page { max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 4rem; }
+h1 { font-size:1.875rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem; }
+.subtitle { color:var(--text2);font-size:0.925rem;margin-bottom:2rem; }
+
+/* DROP */
+.drop-zone { border:2px dashed var(--border2);border-radius:var(--r-xl);padding:3rem 2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);position:relative; }
+.drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent);background:var(--accent-light); }
+.drop-zone input { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+.drop-icon { font-size:2.5rem;margin-bottom:0.875rem; }
+.drop-title { font-size:1.05rem;font-weight:700;margin-bottom:0.35rem; }
+.drop-sub { font-size:0.82rem;color:var(--text3); }
+
+/* WORKSPACE */
+.workspace { display:none; }
+.workspace.active { display:block; }
+
+/* PREVIEW */
+.preview-row { display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem; }
+.preview-box { background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden; }
+.preview-head { padding:0.75rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
+.preview-label { font-size:0.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em; }
+.preview-meta { font-size:0.78rem;color:var(--accent);font-family:var(--mono); }
+.preview-img-area { height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:repeating-conic-gradient(#ebebf5 0% 25%,#f7f7fb 0% 50%) 0 0/20px 20px; }
+.preview-img-area img { max-width:100%;max-height:100%;object-fit:contain; }
+
+/* CONTROLS */
+.controls { background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.5rem; }
+
+.ctrl-section { margin-bottom:1.25rem; }
+.ctrl-section:last-child { margin-bottom:0; }
+.ctrl-title { font-size:0.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.875rem;display:flex;align-items:center;gap:0.5rem; }
+.ctrl-title::after { content:'';flex:1;height:1px;background:var(--border); }
+
+/* PRESET BUTTONS */
+.presets { display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem; }
+.preset-btn { background:var(--bg2);border:1.5px solid var(--border);color:var(--text2);font-family:var(--sans);font-size:0.75rem;font-weight:600;padding:0.4rem 0.875rem;border-radius:100px;cursor:pointer;transition:all 0.15s; }
+.preset-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-light); }
+
+/* DIMENSION INPUTS */
+.dim-row { display:grid;grid-template-columns:1fr auto 1fr auto;gap:0.75rem;align-items:center;margin-bottom:1rem; }
+.dim-field { display:flex;flex-direction:column;gap:0.375rem; }
+.dim-label { font-size:0.72rem;font-weight:600;color:var(--text2);letter-spacing:0.04em; }
+.dim-input { background:var(--bg2);border:1.5px solid var(--border);color:var(--text);font-family:var(--mono);font-size:1.1rem;font-weight:600;padding:0.625rem 0.875rem;border-radius:var(--r-sm);outline:none;transition:border-color 0.15s;width:100%; }
+.dim-input:focus { border-color:var(--accent); }
+.dim-sep { color:var(--text3);font-size:1.2rem;padding-bottom:1.4rem; }
+
+.lock-btn { background:var(--bg2);border:1.5px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.15s;padding-bottom:1.4rem;flex-shrink:0; }
+.lock-btn.locked { border-color:var(--accent);color:var(--accent);background:var(--accent-light); }
+
+/* % SLIDER */
+.pct-row { display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem; }
+.pct-row label { font-size:0.82rem;font-weight:600;color:var(--text2);min-width:80px; }
+input[type="range"].nk-range { -webkit-appearance:none;flex:1;height:6px;background:var(--bg3);border-radius:3px;outline:none;cursor:pointer; }
+input[type="range"].nk-range::-webkit-slider-thumb { -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:white;border:2px solid var(--accent);box-shadow:var(--shadow-sm);cursor:pointer; }
+.pct-val { font-family:var(--mono);font-size:0.9rem;color:var(--accent);min-width:48px;text-align:right; }
+
+/* FORMAT */
+.format-row { display:flex;gap:0.5rem;flex-wrap:wrap; }
+.fmt-btn { background:var(--bg2);border:1.5px solid var(--border);color:var(--text2);font-size:0.78rem;font-weight:600;padding:0.4rem 0.875rem;border-radius:var(--r-sm);cursor:pointer;transition:all 0.15s;font-family:var(--mono); }
+.fmt-btn.active,.fmt-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-light); }
+.quality-row { display:flex;align-items:center;gap:1rem;margin-top:0.75rem; }
+
+/* ACTIONS */
+.actions { display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center; }
+.btn-primary { display:inline-flex;align-items:center;gap:0.5rem;background:var(--grad);color:white;font-family:var(--sans);font-size:0.9rem;font-weight:700;padding:0.875rem 2rem;border-radius:100px;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:box-shadow 0.15s,transform 0.15s; }
+.btn-primary:hover:not(:disabled) { box-shadow:var(--shadow-md);transform:translateY(-1px); }
+.btn-primary:disabled { opacity:0.5;cursor:not-allowed;transform:none; }
+.btn-outline { display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--text2);font-family:var(--sans);font-size:0.875rem;font-weight:600;padding:0.875rem 1.5rem;border-radius:100px;border:1.5px solid var(--border2);cursor:pointer;transition:all 0.15s; }
+.btn-outline:hover { border-color:var(--accent);color:var(--accent); }
+
+/* SAVINGS */
+.savings { background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.25rem 1.5rem;display:flex;gap:2rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem; }
+.sav-stat .sav-num { font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--accent); }
+.sav-stat .sav-label { font-size:0.72rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-top:0.15rem; }
+
+@media(max-width:600px) {
+  nav{padding:0 1rem}
+  .page{padding:1.5rem 1rem 3rem}
+  h1{font-size:1.5rem}
+  .preview-row{grid-template-columns:1fr}
+  .dim-row{grid-template-columns:1fr 1fr}
+  .dim-sep,.lock-btn{display:none}
+  .actions{flex-direction:column}
+  .btn-primary,.btn-outline{width:100%;justify-content:center}
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);--display:'DM Serif Display',Georgia,serif;--body:'Outfit',system-ui,sans-serif;--code:'DM Mono',monospace;--tx1:#0f0f12;--tx2:#54546a;--tx3:#9898b2;--rule:rgba(180,180,210,0.25);--rule2:rgba(180,180,210,0.45);--mist:#f4f4f8;--white:#ffffff;--ink:#0f0f12;--ease:cubic-bezier(0.16,1,0.3,1)}
+body{background:var(--mist);font-family:var(--body);-webkit-font-smoothing:antialiased}
+.nk-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;padding:0 2rem}
+.nk-nav-inner{width:100%;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.nk-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.nk-logo-mark{width:24px;height:24px;background:var(--grad);border-radius:6px;position:relative;overflow:hidden;flex-shrink:0}
+.nk-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%)}
+.nk-logo-text{font-family:var(--display);font-size:1.1rem;color:var(--tx1);letter-spacing:-0.01em;line-height:1}
+.nk-logo-text em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nk-breadcrumb{display:flex;align-items:center;gap:0.375rem;font-family:var(--code);font-size:0.68rem;color:var(--tx3);letter-spacing:0.04em}
+.nk-breadcrumb a{color:var(--tx3);text-decoration:none;transition:color 0.15s}
+.nk-breadcrumb a:hover{color:var(--tx1)}
+.nk-back{margin-left:auto;font-family:var(--code);font-size:0.65rem;color:var(--tx3);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s}
+.nk-back:hover{color:var(--tx1)}
+</style>
+</head>
+<body>
+<nav class="nk-nav">
+  <div class="nk-nav-inner">
+    <a class="nk-logo" href="../index.html"><div class="nk-logo-mark"></div><span class="nk-logo-text">Neat<em>kit</em></span></a>
+    <div class="nk-breadcrumb"><span>/</span><a href="../index.html">tools</a><span>/</span><span>image resize</span></div>
+    <a class="nk-back" href="../index.html">← All tools</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Image Resizer</h1>
+  <p class="subtitle">Resize images to exact pixel dimensions or by percentage. Aspect ratio lock. Runs entirely in your browser — nothing is uploaded.</p>
+
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif">
+    <div class="drop-icon">↔️</div>
+    <div class="drop-title">Drop an image here, or click to browse</div>
+    <div class="drop-sub">JPG · PNG · WebP · GIF &nbsp;·&nbsp; Max 30MB</div>
+  </div>
+
+  <div class="workspace" id="workspace">
+    <div class="preview-row">
+      <div class="preview-box">
+        <div class="preview-head"><span class="preview-label">Original</span><span class="preview-meta" id="orig-meta">—</span></div>
+        <div class="preview-img-area"><img id="orig-img" src="" alt="Original"></div>
+      </div>
+      <div class="preview-box">
+        <div class="preview-head"><span class="preview-label">Resized</span><span class="preview-meta" id="new-meta">—</span></div>
+        <div class="preview-img-area"><img id="new-img" src="" alt="Resized"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <!-- PRESETS -->
+      <div class="ctrl-section">
+        <div class="ctrl-title">Quick presets</div>
+        <div class="presets">
+          <button class="preset-btn" onclick="applyPreset(1920,1080)">1920×1080 (FHD)</button>
+          <button class="preset-btn" onclick="applyPreset(1280,720)">1280×720 (HD)</button>
+          <button class="preset-btn" onclick="applyPreset(1080,1080)">1080×1080 (Square)</button>
+          <button class="preset-btn" onclick="applyPreset(1080,1920)">1080×1920 (Story)</button>
+          <button class="preset-btn" onclick="applyPreset(800,600)">800×600</button>
+          <button class="preset-btn" onclick="applyPreset(640,480)">640×480</button>
+          <button class="preset-btn" onclick="applyPreset(512,512)">512×512 (AI)</button>
+          <button class="preset-btn" onclick="applyPreset(400,400)">400×400 (Avatar)</button>
+        </div>
+      </div>
+
+      <!-- DIMENSIONS -->
+      <div class="ctrl-section">
+        <div class="ctrl-title">Custom dimensions</div>
+        <div class="dim-row">
+          <div class="dim-field">
+            <span class="dim-label">Width (px)</span>
+            <input class="dim-input" type="number" id="inp-w" min="1" oninput="onWidthChange()">
+          </div>
+          <div class="dim-sep">×</div>
+          <div class="dim-field">
+            <span class="dim-label">Height (px)</span>
+            <input class="dim-input" type="number" id="inp-h" min="1" oninput="onHeightChange()">
+          </div>
+          <button class="lock-btn locked" id="lock-btn" onclick="toggleLock()" title="Lock aspect ratio">🔒</button>
+        </div>
+      </div>
+
+      <!-- PERCENTAGE -->
+      <div class="ctrl-section">
+        <div class="ctrl-title">Or resize by percentage</div>
+        <div class="pct-row">
+          <label>Scale</label>
+          <input type="range" class="nk-range" id="pct-slider" min="1" max="200" value="100" oninput="onPctChange(this.value)">
+          <span class="pct-val" id="pct-val">100%</span>
+        </div>
+      </div>
+
+      <!-- FORMAT -->
+      <div class="ctrl-section">
+        <div class="ctrl-title">Output format</div>
+        <div class="format-row">
+          <button class="fmt-btn active" id="fmt-orig" onclick="setFormat('original')">Original</button>
+          <button class="fmt-btn" id="fmt-jpg" onclick="setFormat('image/jpeg')">JPEG</button>
+          <button class="fmt-btn" id="fmt-png" onclick="setFormat('image/png')">PNG</button>
+          <button class="fmt-btn" id="fmt-webp" onclick="setFormat('image/webp')">WebP</button>
+        </div>
+        <div class="quality-row" id="quality-row">
+          <label style="font-size:0.82rem;font-weight:600;color:var(--text2);min-width:60px">Quality</label>
+          <input type="range" class="nk-range" id="quality" min="1" max="100" value="92" oninput="document.getElementById('q-val').textContent=this.value+'%';render()">
+          <span class="pct-val" id="q-val">92%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="savings" id="savings">
+      <div class="sav-stat"><div class="sav-num" id="sav-dims">—</div><div class="sav-label">Output size</div></div>
+      <div class="sav-stat"><div class="sav-num" id="sav-pct">—</div><div class="sav-label">Scale vs original</div></div>
+      <div class="sav-stat"><div class="sav-num" id="sav-bytes">—</div><div class="sav-label">File size (est.)</div></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="dl-btn" onclick="download()">↓ Download resized image</button>
+      <button class="btn-outline" onclick="reset()">← Choose different image</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+  let origImg = null, origW = 0, origH = 0, origFile = null, origMime = '';
+  let locked = true, outputFormat = 'original', outputBlob = null;
+
+  function fmt(b) { if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(2)+'MB'; }
+
+  // Drop zone
+  const dz = document.getElementById('drop-zone');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',e=>{if(!dz.contains(e.relatedTarget))dz.classList.remove('drag-over');});
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadFile(f);});
+  document.getElementById('file-input').addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);});
+
+  function loadFile(file) {
+    if(file.size>30*1024*1024){alert('Max 30MB');return;}
+    origFile=file; origMime=file.type;
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      origImg=img; origW=img.width; origH=img.height;
+      document.getElementById('orig-img').src=url;
+      document.getElementById('orig-meta').textContent=`${origW}×${origH} · ${fmt(file.size)}`;
+      document.getElementById('inp-w').value=origW;
+      document.getElementById('inp-h').value=origH;
+      document.getElementById('pct-slider').value=100;
+      document.getElementById('pct-val').textContent='100%';
+      document.getElementById('drop-zone').style.display='none';
+      document.getElementById('workspace').classList.add('active');
+      render();
+    };
+    img.src=url;
+  }
+
+  function onWidthChange() {
+    const w=parseInt(document.getElementById('inp-w').value)||1;
+    if(locked){ document.getElementById('inp-h').value=Math.round(w/origW*origH)||1; }
+    updatePctFromDims();
+    render();
+  }
+  function onHeightChange() {
+    const h=parseInt(document.getElementById('inp-h').value)||1;
+    if(locked){ document.getElementById('inp-w').value=Math.round(h/origH*origW)||1; }
+    updatePctFromDims();
+    render();
+  }
+  function onPctChange(val) {
+    document.getElementById('pct-val').textContent=val+'%';
+    document.getElementById('inp-w').value=Math.round(origW*val/100)||1;
+    document.getElementById('inp-h').value=Math.round(origH*val/100)||1;
+    render();
+  }
+  function updatePctFromDims() {
+    const w=parseInt(document.getElementById('inp-w').value)||1;
+    const pct=Math.round(w/origW*100);
+    document.getElementById('pct-slider').value=Math.min(200,pct);
+    document.getElementById('pct-val').textContent=pct+'%';
+  }
+  function toggleLock() {
+    locked=!locked;
+    const btn=document.getElementById('lock-btn');
+    btn.classList.toggle('locked',locked);
+    btn.textContent=locked?'🔒':'🔓';
+  }
+  function applyPreset(w,h) {
+    locked=false;
+    document.getElementById('inp-w').value=w;
+    document.getElementById('inp-h').value=h;
+    updatePctFromDims();
+    render();
+  }
+  function setFormat(f) {
+    outputFormat=f;
+    document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
+    const ids={'original':'fmt-orig','image/jpeg':'fmt-jpg','image/png':'fmt-png','image/webp':'fmt-webp'};
+    document.getElementById(ids[f])?.classList.add('active');
+    const showQ = f==='image/jpeg'||f==='image/webp'||(f==='original'&&(origMime==='image/jpeg'||origMime==='image/webp'));
+    document.getElementById('quality-row').style.display=showQ?'flex':'none';
+    render();
+  }
+
+  function render() {
+    if(!origImg) return;
+    const w=Math.max(1,parseInt(document.getElementById('inp-w').value)||origW);
+    const h=Math.max(1,parseInt(document.getElementById('inp-h').value)||origH);
+    const canvas=document.getElementById('canvas');
+    canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    ctx.drawImage(origImg,0,0,w,h);
+    const mime=outputFormat==='original'?origMime:outputFormat;
+    const quality=parseInt(document.getElementById('quality').value)/100;
+    const q=mime==='image/png'?undefined:quality;
+    canvas.toBlob(blob=>{
+      outputBlob=blob;
+      const url=URL.createObjectURL(blob);
+      document.getElementById('new-img').src=url;
+      document.getElementById('new-meta').textContent=`${w}×${h} · ${fmt(blob.size)}`;
+      const pct=Math.round(w/origW*100);
+      document.getElementById('sav-dims').textContent=`${w}×${h}`;
+      document.getElementById('sav-pct').textContent=pct+'%';
+      document.getElementById('sav-bytes').textContent=fmt(blob.size);
+    },mime,q);
+  }
+
+  function download() {
+    if(!outputBlob||!origFile) return;
+    const mime=outputFormat==='original'?origMime:outputFormat;
+    const ext={['image/jpeg']:'jpg',['image/png']:'png',['image/webp']:'webp',['image/gif']:'gif'}[mime]||'jpg';
+    const base=origFile.name.replace(/\.[^.]+$/,'');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(outputBlob);
+    a.download=`${base}-resized.${ext}`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  }
+
+  function reset() {
+    origImg=null;origFile=null;outputBlob=null;
+    document.getElementById('drop-zone').style.display='';
+    document.getElementById('workspace').classList.remove('active');
+    document.getElementById('file-input').value='';
+  }
+
+  // Hide quality row initially for PNG
+  document.getElementById('quality-row').style.display='flex';
+</script>
+</body>
+</html>

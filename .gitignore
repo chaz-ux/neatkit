@@ -1,0 +1,7 @@
+cloudflared.out.log
+cloudflared.err.log
+cloudflared.log
+cloudflared.pid
+python-server.log
+python-server.err.log
+python-server.pid

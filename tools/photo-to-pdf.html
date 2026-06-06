@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="keywords" content="photo to pdf, document scanner online free, scan document to pdf, handwritten notes to pdf, receipt to pdf, mobile scanner online, scan using phone camera">
+<meta name="description" content="Free document scanner. Scan handwritten notes, receipts or documents with your camera. Auto edge detection, perspective correction, scanned PDF output. No app needed.">
+<link rel="canonical" href="https://neatkit.com/tools/photo-to-pdf">
+<title>Photo to Scanned PDF — Document Scanner | Neatkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);
+  --display:'DM Serif Display',Georgia,serif;
+  --body:'Outfit',system-ui,sans-serif;
+  --code:'DM Mono',monospace;
+  --tx1:#0f0f12;--tx2:#54546a;--tx3:#9898b2;
+  --rule:rgba(180,180,210,0.25);--rule2:rgba(180,180,210,0.45);
+  --mist:#f4f4f8;--mist2:#ecedf4;--white:#ffffff;--ink:#0f0f12;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --success:#15803d;--warn:#92400e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--mist);color:var(--tx1);font-family:var(--body);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+
+/* NAV */
+.nk-nav{position:sticky;top:0;z-index:300;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;padding:0 1.5rem}
+.nk-nav-inner{width:100%;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.nk-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.nk-logo-mark{width:24px;height:24px;background:var(--grad);border-radius:6px;position:relative;overflow:hidden;flex-shrink:0}
+.nk-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%)}
+.nk-logo-text{font-family:var(--display);font-size:1.1rem;color:var(--tx1);letter-spacing:-0.01em;line-height:1}
+.nk-logo-text em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nk-breadcrumb{display:flex;align-items:center;gap:0.375rem;font-family:var(--code);font-size:0.65rem;color:var(--tx3)}
+.nk-breadcrumb a{color:var(--tx3);text-decoration:none}
+.nk-back{margin-left:auto;font-family:var(--code);font-size:0.62rem;color:var(--tx3);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase}
+.nk-back:hover{color:var(--tx1)}
+
+/* PAGE */
+.page{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
+h1{font-family:var(--display);font-size:1.875rem;letter-spacing:-0.025em;margin-bottom:0.375rem}
+.subtitle{color:var(--tx2);font-size:0.9rem;font-weight:300;margin-bottom:2rem;line-height:1.65}
+
+/* AD SLOT */
+.ad-slot{background:var(--white);border:1px dashed var(--rule2);border-radius:10px;min-height:90px;display:flex;align-items:center;justify-content:center;font-family:var(--code);font-size:0.62rem;color:var(--tx3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem}
+
+/* ── MAIN SCANNER UI ─────────────────────────────────── */
+.scanner-shell{background:var(--white);border:1px solid var(--rule2);border-radius:20px;overflow:hidden}
+
+/* INPUT CHOICE */
+.input-choice{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+.choice-btn{padding:1.25rem 1rem;display:flex;flex-direction:column;align-items:center;gap:0.625rem;border:none;background:transparent;cursor:pointer;transition:background 0.15s;border-right:1px solid var(--rule);font-family:var(--body)}
+.choice-btn:last-child{border-right:none}
+.choice-btn:hover{background:var(--mist)}
+.choice-icon{font-size:1.75rem}
+.choice-label{font-size:0.875rem;font-weight:700;color:var(--tx1)}
+.choice-sub{font-size:0.72rem;color:var(--tx3);text-align:center;line-height:1.4}
+
+/* ── CAMERA VIEW ─────────────────────────────────────── */
+#camera-view{display:none;flex-direction:column;height:100%}
+#camera-view.active{display:flex}
+
+.cam-viewport{position:relative;background:#000;overflow:hidden;flex-shrink:0}
+.cam-viewport video{width:100%;display:block;max-height:65vh;object-fit:cover}
+
+/* Edge detection overlay canvas */
+#edge-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* Scan state indicator */
+.scan-indicator{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:var(--code);font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.3rem 0.875rem;border-radius:100px;backdrop-filter:blur(8px);transition:all 0.3s}
+.scan-indicator.searching{background:rgba(0,0,0,0.55);color:rgba(255,255,255,0.7)}
+.scan-indicator.detected{background:rgba(34,197,94,0.85);color:white}
+.scan-indicator.ready{background:rgba(34,197,94,0.95);color:white;font-weight:700}
+
+/* Page counter badge */
+.page-counter{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);color:white;font-family:var(--code);font-size:0.72rem;padding:0.25rem 0.625rem;border-radius:100px;backdrop-filter:blur(8px)}
+
+/* CAMERA CONTROLS */
+.cam-controls{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;background:#0f0f12;gap:0.75rem}
+.cam-ctrl-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;transition:background 0.15s;flex-shrink:0}
+.cam-ctrl-btn:hover{background:rgba(255,255,255,0.2)}
+.cam-ctrl-btn.active{background:rgba(255,255,200,0.25);border-color:rgba(255,255,100,0.5)}
+.capture-btn{width:72px;height:72px;border-radius:50%;background:white;border:4px solid rgba(255,255,255,0.4);cursor:pointer;transition:transform 0.1s,box-shadow 0.15s;flex-shrink:0;box-shadow:0 0 0 6px rgba(255,255,255,0.15)}
+.capture-btn:hover{transform:scale(1.05);box-shadow:0 0 0 8px rgba(255,255,255,0.2)}
+.capture-btn:active{transform:scale(0.95)}
+.capture-btn.auto-mode{background:linear-gradient(135deg,#b8c4e8,#cfc0dd);border-color:rgba(200,220,255,0.5)}
+.cam-hint{color:rgba(255,255,255,0.5);font-size:0.72rem;font-family:var(--code);text-align:center;padding:0.5rem 1.25rem 0.875rem;background:#0f0f12;letter-spacing:0.04em}
+
+/* AUTO-CAPTURE TOGGLE */
+.auto-toggle{display:flex;align-items:center;gap:0.5rem;color:rgba(255,255,255,0.7);font-size:0.72rem;font-family:var(--code);cursor:pointer;user-select:none}
+.auto-toggle input{accent-color:#c8f04a;width:14px;height:14px;cursor:pointer}
+
+/* ── UPLOAD MODE ─────────────────────────────────────── */
+#upload-view{display:none;padding:1.5rem}
+#upload-view.active{display:block}
+.drop-zone{border:2px dashed var(--rule2);border-radius:14px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;background:var(--mist)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--ink);background:var(--mist2)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:2.25rem;margin-bottom:0.75rem}
+.drop-title{font-size:1rem;font-weight:700;margin-bottom:0.25rem}
+.drop-sub{font-size:0.78rem;color:var(--tx3)}
+
+/* ── PAGE REVIEW STRIP ───────────────────────────────── */
+.review-section{display:none;border-top:1px solid var(--rule)}
+.review-section.show{display:block}
+.review-header{display:flex;justify-content:space-between;align-items:center;padding:0.875rem 1.25rem;border-bottom:1px solid var(--rule);background:var(--mist)}
+.review-title{font-family:var(--code);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--tx2)}
+.review-strip{display:flex;gap:0.625rem;padding:0.875rem 1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.review-strip::-webkit-scrollbar{display:none}
+.thumb-card{position:relative;flex-shrink:0;width:80px;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--rule2);transition:border-color 0.15s;background:repeating-conic-gradient(#ebebf5 0% 25%,#f4f4f8 0% 50%) 0 0/12px 12px}
+.thumb-card:hover{border-color:var(--ink)}
+.thumb-card.selected{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.thumb-img{width:100%;aspect-ratio:0.707;object-fit:cover;display:block}
+.thumb-num{position:absolute;bottom:3px;left:4px;background:rgba(0,0,0,0.6);color:white;font-family:var(--code);font-size:0.55rem;padding:1px 5px;border-radius:4px}
+.thumb-del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.12s}
+.thumb-del:hover{background:rgba(220,38,38,0.8)}
+.add-thumb{flex-shrink:0;width:80px;aspect-ratio:0.707;border:2px dashed var(--rule2);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:1.25rem;color:var(--tx3);transition:all 0.15s;background:var(--mist);position:relative}
+.add-thumb:hover{border-color:var(--ink);color:var(--ink)}
+.add-thumb input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.add-thumb span{font-size:0.6rem;font-family:var(--code);letter-spacing:0.06em;text-transform:uppercase}
+
+/* ── PROCESS SETTINGS ────────────────────────────────── */
+.settings-section{padding:1rem 1.25rem;border-top:1px solid var(--rule);display:none}
+.settings-section.show{display:block}
+.settings-row{display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start}
+.setting-group{display:flex;flex-direction:column;gap:0.35rem;flex:1;min-width:140px}
+.setting-label{font-family:var(--code);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--tx3)}
+.seg-btns{display:flex;background:var(--mist2);border-radius:8px;padding:3px;gap:2px}
+.seg-btn{background:transparent;border:none;color:var(--tx2);font-family:var(--body);font-size:0.75rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:6px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.seg-btn.active{background:var(--white);color:var(--tx1);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+/* ── GENERATE AREA ───────────────────────────────────── */
+.generate-area{padding:1rem 1.25rem;border-top:1px solid var(--rule);display:none}
+.generate-area.show{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;background:var(--ink);color:var(--white);font-family:var(--body);font-size:0.875rem;font-weight:600;padding:0.75rem 1.75rem;border-radius:100px;border:none;cursor:pointer;transition:opacity 0.15s,transform 0.15s}
+.btn-primary:hover:not(:disabled){opacity:0.85;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-outline{display:inline-flex;align-items:center;gap:0.4rem;background:transparent;color:var(--tx2);font-family:var(--body);font-size:0.82rem;font-weight:600;padding:0.65rem 1.125rem;border-radius:100px;border:1px solid var(--rule2);cursor:pointer;transition:all 0.15s}
+.btn-outline:hover{border-color:var(--ink);color:var(--ink)}
+.progress-wrap{display:none;flex:1;min-width:180px}
+.progress-track{height:6px;background:var(--mist2);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--grad);border-radius:3px;transition:width 0.3s;width:0%}
+.progress-label{font-family:var(--code);font-size:0.68rem;color:var(--tx3);margin-top:0.3rem;letter-spacing:0.04em}
+
+/* ── RESULT ──────────────────────────────────────────── */
+.result-section{display:none;padding:1.5rem;border-top:1px solid var(--rule);text-align:center}
+.result-section.show{display:block}
+.result-icon{font-size:2.5rem;margin-bottom:0.625rem}
+.result-title{font-family:var(--display);font-size:1.25rem;letter-spacing:-0.02em;margin-bottom:0.3rem}
+.result-meta{font-size:0.82rem;color:var(--tx2);margin-bottom:1.25rem}
+.result-actions{display:flex;gap:0.625rem;justify-content:center;flex-wrap:wrap}
+
+/* ── FLASH ANIMATION ─────────────────────────────────── */
+.capture-flash{position:fixed;inset:0;background:white;z-index:9999;opacity:0;pointer-events:none;transition:opacity 0.08s}
+.capture-flash.flash{opacity:1}
+
+/* ── STICKY AD ───────────────────────────────────────── */
+#sticky-ad{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--rule2);padding:0.5rem 1.5rem;display:none;align-items:center;justify-content:center}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:500px){
+  .nk-nav,.page{padding-left:1rem;padding-right:1rem}
+  h1{font-size:1.5rem}
+  .input-choice{grid-template-columns:1fr 1fr}
+  .cam-controls{padding:0.875rem 1rem}
+  .capture-btn{width:64px;height:64px}
+  .generate-area{flex-direction:column}
+  .btn-primary,.btn-outline{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="capture-flash" id="flash"></div>
+
+<nav class="nk-nav">
+  <div class="nk-nav-inner">
+    <a class="nk-logo" href="../index.html"><div class="nk-logo-mark"></div><span class="nk-logo-text">Neat<em>kit</em></span></a>
+    <div class="nk-breadcrumb"><span>/</span><a href="../index.html">tools</a><span>/</span><span>photo-to-pdf</span></div>
+    <a class="nk-back" href="../index.html">← All tools</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Photo to Scanned PDF</h1>
+  <p class="subtitle">Point your camera at a document, handwritten notes or receipt. Auto-detects edges and fixes perspective. Add as many pages as you need, then export as a clean scanned PDF.</p>
+
+  <div class="ad-slot" aria-label="Advertisement">Advertisement</div>
+
+  <div class="scanner-shell" id="scanner-shell">
+
+    <!-- INPUT CHOICE -->
+    <div class="input-choice" id="input-choice">
+      <button class="choice-btn" onclick="startCamera()">
+        <span class="choice-icon">📷</span>
+        <span class="choice-label">Use camera</span>
+        <span class="choice-sub">Live edge detection · Auto perspective fix</span>
+      </button>
+      <button class="choice-btn" onclick="showUploadView()">
+        <span class="choice-icon">🖼️</span>
+        <span class="choice-label">Upload images</span>
+        <span class="choice-sub">JPG · PNG · WebP · Multiple files</span>
+      </button>
+    </div>
+
+    <!-- CAMERA VIEW -->
+    <div id="camera-view">
+      <div class="cam-viewport" id="cam-viewport">
+        <video id="cam-video" autoplay playsinline muted></video>
+        <canvas id="edge-canvas"></canvas>
+        <div class="scan-indicator searching" id="scan-indicator">Looking for document…</div>
+        <div class="page-counter" id="page-counter" style="display:none">Page <span id="page-num">1</span></div>
+      </div>
+
+      <div class="cam-controls">
+        <!-- Torch -->
+        <button class="cam-ctrl-btn" id="torch-btn" onclick="toggleTorch()" title="Toggle flashlight" style="display:none">🔦</button>
+        <!-- Flip camera -->
+        <button class="cam-ctrl-btn" onclick="flipCamera()" title="Flip camera">🔄</button>
+
+        <!-- Capture -->
+        <button class="capture-btn" id="capture-btn" onclick="captureFrame()" title="Capture page"></button>
+
+        <!-- Auto-capture toggle -->
+        <label class="auto-toggle" title="Auto-capture when document detected">
+          <input type="checkbox" id="auto-capture" onchange="toggleAutoCapture()">
+          <span>Auto</span>
+        </label>
+
+        <!-- Done / close -->
+        <button class="cam-ctrl-btn" onclick="closeCamera()" title="Done with camera">✓</button>
+      </div>
+      <div class="cam-hint" id="cam-hint">Tap the button to capture · Enable Auto to capture automatically when document is detected</div>
+    </div>
+
+    <!-- UPLOAD VIEW -->
+    <div id="upload-view">
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept="image/*" multiple onchange="handleUploadFiles(this.files)">
+        <div class="drop-icon">🖼️</div>
+        <div class="drop-title">Drop images here, or click to browse</div>
+        <div class="drop-sub">JPG · PNG · WebP · Select multiple files at once</div>
+      </div>
+      <div style="padding:0.875rem;display:flex;gap:0.625rem;justify-content:flex-end">
+        <button class="btn-outline" style="font-size:0.78rem;padding:0.45rem 1rem" onclick="showInputChoice()">← Back</button>
+        <button class="btn-outline" style="font-size:0.78rem;padding:0.45rem 1rem" onclick="startCamera()">Use camera instead</button>
+      </div>
+    </div>
+
+    <!-- PAGE REVIEW STRIP -->
+    <div class="review-section" id="review-section">
+      <div class="review-header">
+        <span class="review-title">Pages — <span id="page-count-label">0</span></span>
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn-outline" style="font-size:0.72rem;padding:0.3rem 0.75rem;border-radius:8px" onclick="startCamera()">+ Camera</button>
+          <button class="btn-outline" style="font-size:0.72rem;padding:0.3rem 0.75rem;border-radius:8px;color:#dc2626;border-color:#fecaca" onclick="clearAllPages()">Clear all</button>
+        </div>
+      </div>
+      <div class="review-strip" id="review-strip"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="settings-section" id="settings-section">
+      <div class="settings-row">
+        <div class="setting-group">
+          <span class="setting-label">Scan style</span>
+          <div class="seg-btns">
+            <button class="seg-btn active" onclick="setSetting('style','clean',this)">B&W</button>
+            <button class="seg-btn" onclick="setSetting('style','grayscale',this)">Gray</button>
+            <button class="seg-btn" onclick="setSetting('style','color',this)">Color</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">Paper</span>
+          <div class="seg-btns">
+            <button class="seg-btn active" onclick="setSetting('paper','a4',this)">A4</button>
+            <button class="seg-btn" onclick="setSetting('paper','letter',this)">Letter</button>
+            <button class="seg-btn" onclick="setSetting('paper','auto',this)">Auto</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">Contrast</span>
+          <div class="seg-btns">
+            <button class="seg-btn" onclick="setSetting('contrast','low',this)">Low</button>
+            <button class="seg-btn active" onclick="setSetting('contrast','medium',this)">Med</button>
+            <button class="seg-btn" onclick="setSetting('contrast','high',this)">High</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">Margins</span>
+          <div class="seg-btns">
+            <button class="seg-btn" onclick="setSetting('margin','none',this)">None</button>
+            <button class="seg-btn active" onclick="setSetting('margin','small',this)">Small</button>
+            <button class="seg-btn" onclick="setSetting('margin','large',this)">Large</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <div class="generate-area" id="generate-area">
+      <button class="btn-primary" id="gen-btn" onclick="generatePDF()" disabled>Generate scanned PDF →</button>
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+        <div class="progress-label" id="prog-label">Processing...</div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-section" id="result-section">
+      <div class="result-icon">✅</div>
+      <div class="result-title" id="result-title">Scanned PDF ready</div>
+      <div class="result-meta" id="result-meta"></div>
+      <div class="result-actions">
+        <button class="btn-primary" onclick="downloadPDF()">↓ Download PDF</button>
+        <button class="btn-outline" onclick="addMorePages()">+ Add more pages</button>
+        <button class="btn-outline" onclick="startOver()">Start over</button>
+      </div>
+    </div>
+
+  </div><!-- scanner-shell -->
+
+  <div class="ad-slot" style="margin-top:1.5rem" aria-label="Advertisement">Advertisement</div>
+</div>
+
+<div id="sticky-ad" role="complementary" aria-label="Advertisement">
+  <button onclick="document.getElementById('sticky-ad').style.display='none'" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:0.875rem">✕</button>
+  <div style="font-family:var(--code);font-size:0.62rem;color:var(--tx3);letter-spacing:0.1em;text-transform:uppercase;min-height:50px;display:flex;align-items:center;justify-content:center;width:100%">Advertisement</div>
+</div>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let pages = []; // {dataURL, processedDataURL}
+let pdfBytes = null;
+let cameraStream = null;
+let facingMode = 'environment';
+let torchOn = false;
+let torchTrack = null;
+let autoCapture = false;
+let autoCaptureTimer = null;
+let detectionInterval = null;
+let docDetected = false;
+let autoCountdown = 0;
+let settings = { style:'clean', paper:'a4', contrast:'medium', margin:'small' };
+let lastDetectedCorners = null;
+
+const PAGE_SIZES = { a4:{w:595.28,h:841.89}, letter:{w:612,h:792} };
+const MARGINS = { none:0, small:28, large:56 };
+const CONTRAST_VAL = { low:1.2, medium:1.6, high:2.2 };
+
+// ══════════════════════════════════════════════════════════
+// VIEW MANAGEMENT
+// ══════════════════════════════════════════════════════════
+function showInputChoice() {
+  document.getElementById('input-choice').style.display = '';
+  document.getElementById('camera-view').classList.remove('active');
+  document.getElementById('upload-view').classList.remove('active');
+  closeCamera();
+}
+
+function showUploadView() {
+  document.getElementById('input-choice').style.display = 'none';
+  document.getElementById('upload-view').classList.add('active');
+  document.getElementById('camera-view').classList.remove('active');
+}
+
+function setSetting(key, val, btn) {
+  settings[key] = val;
+  btn.closest('.seg-btns').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+// CAMERA
+// ══════════════════════════════════════════════════════════
+async function startCamera() {
+  try {
+    if(cameraStream) stopCamera();
+    const constraints = {
+      video:{
+        facingMode,
+        width:{ideal:1920, min:640},
+        height:{ideal:1080, min:480},
+        focusMode:'continuous',      // auto focus
+        exposureMode:'continuous',   // auto exposure
+        whiteBalanceMode:'continuous'
+      }
+    };
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video = document.getElementById('cam-video');
+    video.srcObject = cameraStream;
+    await new Promise(r=>video.onloadedmetadata=r);
+    video.play();
+
+    // Check torch support
+    torchTrack = cameraStream.getVideoTracks()[0];
+    const caps = torchTrack.getCapabilities?.() || {};
+    document.getElementById('torch-btn').style.display = caps.torch ? '' : 'none';
+
+    // Show camera UI
+    document.getElementById('input-choice').style.display = 'none';
+    document.getElementById('upload-view').classList.remove('active');
+    document.getElementById('camera-view').classList.add('active');
+    document.getElementById('page-counter').style.display = pages.length > 0 ? '' : 'none';
+    document.getElementById('page-num').textContent = pages.length + 1;
+
+    // Start detection loop
+    detectionInterval = setInterval(runDetection, 200);
+
+  } catch(e) {
+    toast('Camera error: ' + e.message + '\nTry uploading images instead.');
+    showUploadView();
+  }
+}
+
+function stopCamera() {
+  clearInterval(detectionInterval);
+  clearTimeout(autoCaptureTimer);
+  if(cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+  torchTrack = null; torchOn = false;
+  docDetected = false; lastDetectedCorners = null;
+  autoCountdown = 0;
+}
+
+function closeCamera() {
+  stopCamera();
+  if(pages.length > 0) {
+    document.getElementById('input-choice').style.display = 'none';
+    showReviewUI();
+  } else {
+    showInputChoice();
+  }
+}
+
+async function flipCamera() {
+  facingMode = facingMode==='environment' ? 'user' : 'environment';
+  await startCamera();
+}
+
+async function toggleTorch() {
+  if(!torchTrack) return;
+  torchOn = !torchOn;
+  try {
+    await torchTrack.applyConstraints({advanced:[{torch:torchOn}]});
+    document.getElementById('torch-btn').classList.toggle('active', torchOn);
+    document.getElementById('torch-btn').textContent = torchOn ? '🔆' : '🔦';
+  } catch(e) { toast('Torch not supported on this device'); torchOn=false; }
+}
+
+function toggleAutoCapture() {
+  autoCapture = document.getElementById('auto-capture').checked;
+  document.getElementById('capture-btn').classList.toggle('auto-mode', autoCapture);
+  document.getElementById('cam-hint').textContent = autoCapture
+    ? 'Auto mode: hold document still — will capture automatically when detected'
+    : 'Tap the button to capture · Enable Auto to capture automatically when document is detected';
+}
+
+// ══════════════════════════════════════════════════════════
+// EDGE DETECTION (pure JS, no OpenCV — fast & lightweight)
+// ══════════════════════════════════════════════════════════
+function runDetection() {
+  const video = document.getElementById('cam-video');
+  if(!video.videoWidth) return;
+
+  const canvas = document.getElementById('edge-canvas');
+  const vw = video.offsetWidth || video.videoWidth;
+  const vh = video.offsetHeight || video.videoHeight;
+  canvas.width = vw; canvas.height = vh;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,vw,vh);
+
+  // Sample video at reduced resolution for speed
+  const W = 320, H = Math.round(320 * video.videoHeight / video.videoWidth);
+  const offscreen = document.createElement('canvas');
+  offscreen.width = W; offscreen.height = H;
+  const octx = offscreen.getContext('2d');
+  octx.drawImage(video, 0, 0, W, H);
+  const imageData = octx.getImageData(0, 0, W, H);
+
+  const corners = findDocumentCorners(imageData, W, H);
+
+  if(corners) {
+    lastDetectedCorners = corners;
+    docDetected = true;
+    drawEdgeOverlay(ctx, corners, vw, vh, W, H);
+    setIndicator('detected', autoCapture ? `Document detected — capturing in ${Math.max(0,autoCountdown)}…` : 'Document detected — tap to capture');
+
+    if(autoCapture) {
+      autoCountdown = autoCountdown <= 0 ? 2 : autoCountdown;
+      clearTimeout(autoCaptureTimer);
+      autoCaptureTimer = setTimeout(()=>{
+        if(docDetected && autoCapture) { captureFrame(); autoCountdown=0; }
+      }, 1500);
+    }
+  } else {
+    docDetected = false;
+    lastDetectedCorners = null;
+    clearTimeout(autoCaptureTimer); autoCountdown=0;
+    setIndicator('searching', 'Looking for document…');
+  }
+}
+
+function findDocumentCorners(imageData, W, H) {
+  const data = imageData.data;
+  // Convert to grayscale and apply simple edge detection
+  const gray = new Float32Array(W * H);
+  for(let i=0;i<W*H;i++){
+    const p=i*4;
+    gray[i] = 0.299*data[p] + 0.587*data[p+1] + 0.114*data[p+2];
+  }
+
+  // Sobel edge detection
+  const edges = new Float32Array(W * H);
+  let maxEdge = 0;
+  for(let y=1;y<H-1;y++){
+    for(let x=1;x<W-1;x++){
+      const gx = -gray[(y-1)*W+(x-1)] + gray[(y-1)*W+(x+1)]
+               - 2*gray[y*W+(x-1)]    + 2*gray[y*W+(x+1)]
+               - gray[(y+1)*W+(x-1)] + gray[(y+1)*W+(x+1)];
+      const gy = -gray[(y-1)*W+(x-1)] - 2*gray[(y-1)*W+x] - gray[(y-1)*W+(x+1)]
+               +  gray[(y+1)*W+(x-1)] + 2*gray[(y+1)*W+x] + gray[(y+1)*W+(x+1)];
+      const mag = Math.sqrt(gx*gx+gy*gy);
+      edges[y*W+x] = mag;
+      if(mag>maxEdge) maxEdge=mag;
+    }
+  }
+
+  // Threshold
+  const thresh = maxEdge * 0.25;
+  // Find bounding box of strong edges, exclude outermost border
+  const pad = Math.round(W * 0.06);
+  let minX=W, minY=H, maxX=0, maxY=0, edgeCount=0;
+  for(let y=pad;y<H-pad;y++){
+    for(let x=pad;x<W-pad;x++){
+      if(edges[y*W+x] > thresh) {
+        if(x<minX)minX=x; if(x>maxX)maxX=x;
+        if(y<minY)minY=y; if(y>maxY)maxY=y;
+        edgeCount++;
+      }
+    }
+  }
+
+  // Need enough edge pixels and a reasonable bounding box
+  const bw = maxX-minX, bh = maxY-minY;
+  const minSize = W * 0.25;
+  const maxSize = W * 0.92;
+  if(edgeCount < 200 || bw < minSize || bh < minSize || bw > maxSize || bh > maxSize) return null;
+
+  // Return normalized corners
+  return [
+    {x:minX/W, y:minY/H}, {x:maxX/W, y:minY/H},
+    {x:maxX/W, y:maxY/H}, {x:minX/W, y:maxY/H}
+  ];
+}
+
+function drawEdgeOverlay(ctx, corners, vw, vh, W, H) {
+  const pts = corners.map(c=>({x:c.x*vw, y:c.y*vh}));
+
+  // Dim outside
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(0,0,vw,vh);
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Green border
+  ctx.strokeStyle = 'rgba(34,197,94,0.9)';
+  ctx.lineWidth = 2.5;
+  ctx.shadowColor = 'rgba(34,197,94,0.5)';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.closePath();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Corner dots
+  ctx.fillStyle = '#22c55e';
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();});
+}
+
+function setIndicator(state, text) {
+  const el = document.getElementById('scan-indicator');
+  el.className = 'scan-indicator ' + state;
+  el.textContent = text;
+}
+
+// ══════════════════════════════════════════════════════════
+// CAPTURE
+// ══════════════════════════════════════════════════════════
+function captureFrame() {
+  const video = document.getElementById('cam-video');
+  if(!video.videoWidth) return;
+
+  // Flash effect
+  const flash = document.getElementById('flash');
+  flash.classList.add('flash');
+  setTimeout(()=>flash.classList.remove('flash'),150);
+
+  // Draw full-res frame
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  // Apply perspective correction if we have corners
+  let finalCanvas = canvas;
+  if(lastDetectedCorners) {
+    finalCanvas = perspectiveCorrect(canvas, lastDetectedCorners);
+  }
+
+  const dataURL = finalCanvas.toDataURL('image/jpeg', 0.95);
+  pages.push({dataURL, processedDataURL: null});
+
+  // Update page counter
+  document.getElementById('page-num').textContent = pages.length + 1;
+  document.getElementById('page-counter').style.display = '';
+
+  toast(`Page ${pages.length} captured`);
+
+  // Pause detection briefly to avoid double-capture
+  clearInterval(detectionInterval);
+  setTimeout(()=>{ detectionInterval = setInterval(runDetection, 200); }, 1000);
+}
+
+// Simple perspective correction using bilinear transform
+function perspectiveCorrect(srcCanvas, corners) {
+  const sw = srcCanvas.width, sh = srcCanvas.height;
+  // Map normalized corners back to pixel coords
+  const pts = corners.map(c=>({x:c.x*sw, y:c.y*sh}));
+  const w = Math.round(Math.max(dist(pts[0],pts[1]), dist(pts[2],pts[3])));
+  const h = Math.round(Math.max(dist(pts[0],pts[3]), dist(pts[1],pts[2])));
+
+  if(w < 50 || h < 50) return srcCanvas;
+
+  const dst = document.createElement('canvas');
+  dst.width = w; dst.height = h;
+  const ctx = dst.getContext('2d');
+  const srcCtx = srcCanvas.getContext('2d');
+  const srcData = srcCtx.getImageData(0,0,sw,sh).data;
+  const dstData = ctx.createImageData(w,h);
+
+  // For each destination pixel, find corresponding source pixel
+  for(let dy=0;dy<h;dy++){
+    for(let dx=0;dx<w;dx++){
+      const u = dx/w, v = dy/h;
+      // Bilinear interpolation from the four source corners
+      const sx = (1-u)*(1-v)*pts[0].x + u*(1-v)*pts[1].x + u*v*pts[2].x + (1-u)*v*pts[3].x;
+      const sy = (1-u)*(1-v)*pts[0].y + u*(1-v)*pts[1].y + u*v*pts[2].y + (1-u)*v*pts[3].y;
+      const six = Math.min(sw-1, Math.max(0, Math.round(sx)));
+      const siy = Math.min(sh-1, Math.max(0, Math.round(sy)));
+      const sIdx = (siy*sw+six)*4;
+      const dIdx = (dy*w+dx)*4;
+      dstData.data[dIdx]   = srcData[sIdx];
+      dstData.data[dIdx+1] = srcData[sIdx+1];
+      dstData.data[dIdx+2] = srcData[sIdx+2];
+      dstData.data[dIdx+3] = 255;
+    }
+  }
+  ctx.putImageData(dstData,0,0);
+  return dst;
+}
+
+function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
+
+// ══════════════════════════════════════════════════════════
+// FILE UPLOAD
+// ══════════════════════════════════════════════════════════
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',e=>{if(!dz.contains(e.relatedTarget))dz.classList.remove('drag-over');});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');handleUploadFiles(e.dataTransfer.files);});
+
+function handleUploadFiles(files) {
+  const imgs = [...files].filter(f=>f.type.startsWith('image/'));
+  if(!imgs.length) return;
+  let loaded = 0;
+  imgs.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      pages.push({dataURL:e.target.result, processedDataURL:null});
+      loaded++;
+      if(loaded===imgs.length) { showReviewUI(); }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// REVIEW UI
+// ══════════════════════════════════════════════════════════
+function showReviewUI() {
+  document.getElementById('input-choice').style.display = 'none';
+  document.getElementById('upload-view').classList.remove('active');
+  document.getElementById('review-section').classList.add('show');
+  document.getElementById('settings-section').classList.add('show');
+  document.getElementById('generate-area').classList.add('show');
+  document.getElementById('gen-btn').disabled = pages.length === 0;
+  renderReviewStrip();
+}
+
+function renderReviewStrip() {
+  document.getElementById('page-count-label').textContent = pages.length + ' page' + (pages.length!==1?'s':'');
+  const strip = document.getElementById('review-strip');
+  strip.innerHTML = pages.map((p,i)=>`
+    <div class="thumb-card" draggable="true"
+      ondragstart="thumbDragStart(event,${i})" ondragover="thumbDragOver(event,${i})"
+      ondrop="thumbDrop(event,${i})" ondragend="thumbDragEnd()">
+      <img class="thumb-img" src="${p.dataURL}" alt="Page ${i+1}">
+      <div class="thumb-num">${i+1}</div>
+      <button class="thumb-del" onclick="deletePage(${i});event.stopPropagation()" title="Remove">✕</button>
+    </div>
+  `).join('') + `
+    <div class="add-thumb">
+      <input type="file" accept="image/*" multiple onchange="addMoreFiles(this.files)">
+      <span style="font-size:1.5rem">＋</span>
+      <span>Add page</span>
+    </div>
+  `;
+  document.getElementById('gen-btn').disabled = pages.length === 0;
+}
+
+let thumbDragSrc = null;
+function thumbDragStart(e,i){thumbDragSrc=i;}
+function thumbDragOver(e,i){e.preventDefault();}
+function thumbDrop(e,i){e.preventDefault();if(thumbDragSrc===null||thumbDragSrc===i)return;const m=pages.splice(thumbDragSrc,1)[0];pages.splice(i,0,m);renderReviewStrip();}
+function thumbDragEnd(){thumbDragSrc=null;}
+
+function deletePage(i){pages.splice(i,1);renderReviewStrip();if(!pages.length)startOver();}
+function clearAllPages(){pages=[];pdfBytes=null;startOver();}
+
+function addMoreFiles(files){
+  [...files].filter(f=>f.type.startsWith('image/')).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{pages.push({dataURL:e.target.result,processedDataURL:null});renderReviewStrip();};
+    reader.readAsDataURL(file);
+  });
+}
+
+function addMorePages(){
+  document.getElementById('result-section').classList.remove('show');
+  showReviewUI();
+}
+
+// ══════════════════════════════════════════════════════════
+// IMAGE PROCESSING
+// ══════════════════════════════════════════════════════════
+function processImageCanvas(img, canvas) {
+  canvas.width = img.naturalWidth || img.width;
+  canvas.height = img.naturalHeight || img.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  if(settings.style === 'color') return;
+
+  const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const data = imageData.data;
+  const contrast = CONTRAST_VAL[settings.contrast];
+
+  for(let i=0;i<data.length;i+=4){
+    let gray = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
+    gray = ((gray/255 - 0.5) * contrast + 0.5) * 255;
+    gray = Math.max(0,Math.min(255,gray));
+    if(settings.style === 'clean') gray = gray > 175 ? 255 : gray < 85 ? 0 : gray;
+    data[i]=data[i+1]=data[i+2]=gray;
+  }
+  ctx.putImageData(imageData,0,0);
+}
+
+// ══════════════════════════════════════════════════════════
+// PDF GENERATION
+// ══════════════════════════════════════════════════════════
+async function generatePDF() {
+  if(!pages.length) return;
+  const btn = document.getElementById('gen-btn');
+  btn.disabled=true; btn.textContent='Processing…';
+  const pw = document.getElementById('progress-wrap');
+  const pf = document.getElementById('prog-fill');
+  const pl = document.getElementById('prog-label');
+  pw.style.display='block';
+  document.getElementById('result-section').classList.remove('show');
+
+  try {
+    const pdf = await PDFLib.PDFDocument.create();
+    const offscreen = document.createElement('canvas');
+
+    for(let i=0;i<pages.length;i++){
+      pf.style.width = Math.round((i/pages.length)*90)+'%';
+      pl.textContent = `Processing page ${i+1} of ${pages.length}…`;
+      await new Promise(r=>setTimeout(r,15));
+
+      // Load image
+      const img = new Image();
+      await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=pages[i].dataURL;});
+      processImageCanvas(img, offscreen);
+
+      let pageW, pageH;
+      if(settings.paper==='auto'){
+        pageW=img.naturalWidth||offscreen.width;
+        pageH=img.naturalHeight||offscreen.height;
+      } else {
+        const dims = PAGE_SIZES[settings.paper];
+        pageW = (img.width||img.naturalWidth) > (img.height||img.naturalHeight) ? dims.h : dims.w;
+        pageH = (img.width||img.naturalWidth) > (img.height||img.naturalHeight) ? dims.w : dims.h;
+      }
+
+      const margin = MARGINS[settings.margin];
+      const page = pdf.addPage([pageW, pageH]);
+      page.drawRectangle({x:0,y:0,width:pageW,height:pageH,color:PDFLib.rgb(1,1,1)});
+
+      const dataUrl = offscreen.toDataURL('image/jpeg', 0.92);
+      const jpgBytes = await fetch(dataUrl).then(r=>r.arrayBuffer());
+      const jpgImg = await pdf.embedJpg(jpgBytes);
+
+      const usableW=pageW-margin*2, usableH=pageH-margin*2;
+      const scaleX=usableW/offscreen.width, scaleY=usableH/offscreen.height;
+      const scale=Math.min(scaleX,scaleY);
+      const iw=offscreen.width*scale, ih=offscreen.height*scale;
+      page.drawImage(jpgImg,{x:margin+(usableW-iw)/2, y:margin+(usableH-ih)/2, width:iw, height:ih});
+    }
+
+    pf.style.width='95%'; pl.textContent='Finalizing…';
+    await new Promise(r=>setTimeout(r,50));
+    pdfBytes = await pdf.save();
+    pf.style.width='100%';
+
+    document.getElementById('result-title').textContent = `✓ ${pages.length}-page scanned PDF`;
+    document.getElementById('result-meta').textContent = `${fmt(pdfBytes.length)} · ${pages.length} page${pages.length!==1?'s':''}`;
+    document.getElementById('result-section').classList.add('show');
+    document.getElementById('result-section').scrollIntoView({behavior:'smooth',block:'nearest'});
+  } catch(e){ toast('Error: '+e.message); }
+
+  pw.style.display='none';
+  btn.disabled=false; btn.textContent='Generate scanned PDF →';
+}
+
+function downloadPDF(){
+  if(!pdfBytes)return;
+  const blob=new Blob([pdfBytes],{type:'application/pdf'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='neatkit-scan.pdf';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+
+function startOver(){
+  pages=[];pdfBytes=null;
+  document.getElementById('review-section').classList.remove('show');
+  document.getElementById('settings-section').classList.remove('show');
+  document.getElementById('generate-area').classList.remove('show');
+  document.getElementById('result-section').classList.remove('show');
+  document.getElementById('input-choice').style.display='';
+  document.getElementById('upload-view').classList.remove('active');
+  document.getElementById('camera-view').classList.remove('active');
+  stopCamera();
+}
+
+// ══════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════
+function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(2)+'MB';}
+
+function toast(msg,dur=2500){
+  document.querySelectorAll('.nk-toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  Object.assign(t.style,{position:'fixed',bottom:'1.5rem',left:'50%',transform:'translateX(-50%)',background:'#0f0f12',color:'white',padding:'0.75rem 1.5rem',borderRadius:'100px',fontSize:'0.82rem',fontWeight:'500',zIndex:'9999',boxShadow:'0 8px 32px rgba(0,0,0,0.25)',fontFamily:"'Outfit',sans-serif",whiteSpace:'nowrap',textAlign:'center',maxWidth:'90vw',whiteSpace:'pre-line'});
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},dur);
+}
+
+window.addEventListener('beforeunload',stopCamera);
+setTimeout(()=>{document.getElementById('sticky-ad').style.display='flex';},5000);
+</script>
+</body>
+</html>

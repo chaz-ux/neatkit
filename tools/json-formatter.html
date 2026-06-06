@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="json formatter, json validator, json beautifier, format json online, json pretty print, json minifier, json parser online free">
+<meta name="description" content="Free JSON formatter, validator and minifier. Pretty print JSON, minify, validate syntax, view as collapsible tree. Instant, no signup.">
+<title>JSON Formatter & Validator Free Online | Neatkit</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #0c0c0c; --bg2: #141414; --bg3: #1c1c1c; --border: #2a2a2a; --border2: #3a3a3a; --text: #e8e6e0; --text2: #8a8880; --text3: #5a5856; --accent: #c8f04a; --mono: 'Space Mono', monospace; --sans: 'DM Sans', sans-serif; --str: #c8f04a; --num: #ff9070; --bool: #4d9fff; --null: #ff6b6b; --key: #b894f5; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; min-height: 100vh; }
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(12,12,12,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; gap: 1rem; height: 56px; }
+  .logo { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; }
+  .logo span { color: var(--text2); font-weight: 400; }
+  .breadcrumb { color: var(--text3); font-size: 0.8rem; font-family: var(--mono); }
+  .breadcrumb a { color: var(--text3); text-decoration: none; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+  h1 { font-family: var(--mono); font-size: 1.75rem; font-weight: 700; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+  .subtitle { color: var(--text2); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text2); font-family: var(--mono); font-size: 0.75rem; padding: 0.45rem 0.875rem; border-radius: 6px; cursor: pointer; transition: all 0.12s; letter-spacing: 0.04em; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #0c0c0c; font-weight: 700; }
+  .btn.primary:hover { background: #d8ff5a; }
+  .indent-label { font-family: var(--mono); font-size: 0.72rem; color: var(--text3); }
+  select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 0.4rem 0.6rem; border-radius: 6px; outline: none; }
+  .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .pane { display: flex; flex-direction: column; }
+  .pane-label { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+  textarea { flex: 1; min-height: 480px; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 0.82rem; line-height: 1.6; padding: 1rem; border-radius: 8px; resize: none; outline: none; transition: border-color 0.15s; tab-size: 2; }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text3); }
+  textarea.error { border-color: #ff4d4d; }
+  .err-msg { color: #ff6b6b; font-family: var(--mono); font-size: 0.78rem; margin-top: 0.5rem; min-height: 1.2em; }
+  .tree-view { flex: 1; min-height: 480px; background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px; padding: 1rem; overflow: auto; font-family: var(--mono); font-size: 0.82rem; line-height: 1.8; }
+  .j-key { color: var(--key); }
+  .j-str { color: var(--str); }
+  .j-num { color: var(--num); }
+  .j-bool { color: var(--bool); }
+  .j-null { color: var(--null); }
+  .j-collapse { cursor: pointer; color: var(--text3); user-select: none; padding: 0 0.2rem; }
+  .j-collapse:hover { color: var(--accent); }
+  .collapsible { }
+  .stats { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .stat-pill { font-family: var(--mono); font-size: 0.72rem; color: var(--text3); }
+  .stat-pill span { color: var(--accent); }
+  @media (max-width: 700px) { .panel { grid-template-columns: 1fr; } }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);--display:'DM Serif Display',Georgia,serif;--body:'Outfit',system-ui,sans-serif;--code:'DM Mono',monospace;--tx1:#0f0f12;--tx2:#54546a;--tx3:#9898b2;--rule:rgba(180,180,210,0.25);--rule2:rgba(180,180,210,0.45);--mist:#f4f4f8;--white:#ffffff;--ink:#0f0f12;--ease:cubic-bezier(0.16,1,0.3,1)}
+body{background:var(--mist);font-family:var(--body);-webkit-font-smoothing:antialiased}
+.nk-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;padding:0 2rem}
+.nk-nav-inner{width:100%;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.nk-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.nk-logo-mark{width:24px;height:24px;background:var(--grad);border-radius:6px;position:relative;overflow:hidden;flex-shrink:0}
+.nk-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%)}
+.nk-logo-text{font-family:var(--display);font-size:1.1rem;color:var(--tx1);letter-spacing:-0.01em;line-height:1}
+.nk-logo-text em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nk-breadcrumb{display:flex;align-items:center;gap:0.375rem;font-family:var(--code);font-size:0.68rem;color:var(--tx3);letter-spacing:0.04em}
+.nk-breadcrumb a{color:var(--tx3);text-decoration:none;transition:color 0.15s}
+.nk-breadcrumb a:hover{color:var(--tx1)}
+.nk-back{margin-left:auto;font-family:var(--code);font-size:0.65rem;color:var(--tx3);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s}
+.nk-back:hover{color:var(--tx1)}
+</style>
+</head>
+<body>
+<nav class="nk-nav">
+  <div class="nk-nav-inner">
+    <a class="nk-logo" href="../index.html"><div class="nk-logo-mark"></div><span class="nk-logo-text">Neat<em>kit</em></span></a>
+    <div class="nk-breadcrumb"><span>/</span><a href="../index.html">tools</a><span>/</span><span>json formatter</span></div>
+    <a class="nk-back" href="../index.html">← All tools</a>
+  </div>
+</nav>
+<div class="container">
+  <h1>JSON Formatter</h1>
+  <p class="subtitle">Pretty-print, minify, or validate JSON. Syntax highlighted output. Click ▶ to collapse nodes.</p>
+  <div class="toolbar">
+    <button class="btn primary" onclick="formatJSON()">Format ↵</button>
+    <button class="btn" onclick="minifyJSON()">Minify</button>
+    <button class="btn" onclick="copyOutput()">Copy output</button>
+    <button class="btn" onclick="clearAll()">Clear</button>
+    <span class="indent-label">Indent:</span>
+    <select id="indent" onchange="formatJSON()">
+      <option value="2">2 spaces</option>
+      <option value="4">4 spaces</option>
+      <option value="t">Tab</option>
+    </select>
+    <div style="margin-left:auto;display:flex;gap:0.5rem">
+      <button class="btn" onclick="toggleView('text')" id="btn-text">Text</button>
+      <button class="btn" onclick="toggleView('tree')" id="btn-tree">Tree</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="pane">
+      <div class="pane-label"><span>Input JSON</span><span id="input-size"></span></div>
+      <textarea id="input" placeholder='Paste JSON here...&#10;&#10;{"name": "Zana","tools": ["word counter","image compressor"]}' oninput="onInput()"></textarea>
+      <div class="err-msg" id="err-msg"></div>
+    </div>
+    <div class="pane">
+      <div class="pane-label"><span>Output</span><span id="output-size"></span></div>
+      <textarea id="output" readonly placeholder="Formatted JSON will appear here..."></textarea>
+      <div id="tree-view" class="tree-view" style="display:none"></div>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+</div>
+<script>
+  let parsed = null;
+  let viewMode = 'text';
+
+  function onInput() {
+    const text = document.getElementById('input').value.trim();
+    document.getElementById('input-size').textContent = text.length ? text.length + ' chars' : '';
+    if (!text) { document.getElementById('err-msg').textContent = ''; document.getElementById('input').classList.remove('error'); clearOutput(); return; }
+    try {
+      parsed = JSON.parse(text);
+      document.getElementById('err-msg').textContent = '';
+      document.getElementById('input').classList.remove('error');
+      formatJSON();
+    } catch(e) {
+      document.getElementById('err-msg').textContent = '⚠ ' + e.message;
+      document.getElementById('input').classList.add('error');
+      clearOutput();
+    }
+  }
+
+  function getIndent() {
+    const v = document.getElementById('indent').value;
+    return v === 't' ? '\t' : parseInt(v);
+  }
+
+  function formatJSON() {
+    if (!parsed) return;
+    const out = JSON.stringify(parsed, null, getIndent());
+    document.getElementById('output').value = out;
+    document.getElementById('output-size').textContent = out.length + ' chars';
+    if (viewMode === 'tree') buildTree(parsed);
+    buildStats(parsed, out);
+  }
+
+  function minifyJSON() {
+    if (!parsed) return;
+    const out = JSON.stringify(parsed);
+    document.getElementById('output').value = out;
+    document.getElementById('output-size').textContent = out.length + ' chars';
+  }
+
+  function clearOutput() {
+    parsed = null;
+    document.getElementById('output').value = '';
+    document.getElementById('output-size').textContent = '';
+    document.getElementById('tree-view').innerHTML = '';
+    document.getElementById('stats').innerHTML = '';
+  }
+
+  function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('input-size').textContent = '';
+    clearOutput();
+  }
+
+  function copyOutput() {
+    const val = viewMode === 'text' ? document.getElementById('output').value : document.getElementById('output').value;
+    navigator.clipboard.writeText(val).then(() => {
+      const btn = event.target; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy output', 1500);
+    });
+  }
+
+  function toggleView(mode) {
+    viewMode = mode;
+    document.getElementById('btn-text').style.borderColor = mode === 'text' ? 'var(--accent)' : '';
+    document.getElementById('btn-text').style.color = mode === 'text' ? 'var(--accent)' : '';
+    document.getElementById('btn-tree').style.borderColor = mode === 'tree' ? 'var(--accent)' : '';
+    document.getElementById('btn-tree').style.color = mode === 'tree' ? 'var(--accent)' : '';
+    document.getElementById('output').style.display = mode === 'text' ? '' : 'none';
+    document.getElementById('tree-view').style.display = mode === 'tree' ? '' : 'none';
+    if (mode === 'tree' && parsed) buildTree(parsed);
+  }
+
+  function buildStats(data, str) {
+    function countNodes(obj) {
+      if (Array.isArray(obj)) return obj.reduce((s, v) => s + countNodes(v), obj.length);
+      if (obj && typeof obj === 'object') return Object.values(obj).reduce((s, v) => s + countNodes(v), Object.keys(obj).length);
+      return 1;
+    }
+    function maxDepth(obj, d=0) {
+      if (Array.isArray(obj)) return obj.reduce((m, v) => Math.max(m, maxDepth(v, d+1)), d);
+      if (obj && typeof obj === 'object') return Object.values(obj).reduce((m, v) => Math.max(m, maxDepth(v, d+1)), d);
+      return d;
+    }
+    document.getElementById('stats').innerHTML = [
+      `Keys: <span>${Array.isArray(data) ? data.length + ' items' : Object.keys(data).length}</span>`,
+      `Nodes: <span>${countNodes(data)}</span>`,
+      `Depth: <span>${maxDepth(data)}</span>`,
+      `Size: <span>${str.length} chars / ${new Blob([str]).size} bytes</span>`
+    ].map(s => `<div class="stat-pill">${s}</div>`).join('');
+  }
+
+  function renderValue(val, key=null) {
+    const k = key !== null ? `<span class="j-key">"${key}"</span>: ` : '';
+    if (val === null) return `${k}<span class="j-null">null</span>`;
+    if (typeof val === 'boolean') return `${k}<span class="j-bool">${val}</span>`;
+    if (typeof val === 'number') return `${k}<span class="j-num">${val}</span>`;
+    if (typeof val === 'string') return `${k}<span class="j-str">"${val.length > 80 ? val.slice(0,80)+'…' : val}"</span>`;
+    if (Array.isArray(val)) {
+      if (val.length === 0) return `${k}[]`;
+      const id = 'n' + Math.random().toString(36).slice(2);
+      const items = val.map(v => `<div style="padding-left:1.5em">${renderValue(v)}</div>`).join('');
+      return `${k}<span class="j-collapse" onclick="toggle('${id}')">▼</span> [<div id="${id}">${items}</div><span>]</span>`;
+    }
+    if (typeof val === 'object') {
+      const entries = Object.entries(val);
+      if (entries.length === 0) return `${k}{}`;
+      const id = 'n' + Math.random().toString(36).slice(2);
+      const items = entries.map(([k2,v]) => `<div style="padding-left:1.5em">${renderValue(v, k2)}</div>`).join('');
+      return `${k}<span class="j-collapse" onclick="toggle('${id}')">▼</span> {<div id="${id}">${items}</div><span>}</span>`;
+    }
+    return `${k}${val}`;
+  }
+
+  function toggle(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const btn = el.previousElementSibling;
+    if (el.style.display === 'none') { el.style.display = ''; btn.textContent = '▼'; }
+    else { el.style.display = 'none'; btn.textContent = '▶'; }
+  }
+
+  function buildTree(data) {
+    document.getElementById('tree-view').innerHTML = renderValue(data);
+  }
+</script>
+</body>
+</html>

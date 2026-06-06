@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="base64 encoder decoder online free, encode base64, decode base64, base64 converter, url safe base64, file to base64">
+<meta name="description" content="Free Base64 encoder and decoder. Encode text or files to Base64, decode Base64 strings. URL-safe mode, live encoding, file upload. No data sent to servers.">
+<link rel="canonical" href="https://neatkit.com/tools/base64">
+<title>Base64 Encoder & Decoder — Neatkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--grad:linear-gradient(135deg,#b8c4e8,#cfc0dd,#e8cdb0);--display:'DM Serif Display',Georgia,serif;--body:'Outfit',system-ui,sans-serif;--code:'DM Mono',monospace;--tx1:#0f0f12;--tx2:#54546a;--tx3:#9898b2;--rule:rgba(180,180,210,0.25);--rule2:rgba(180,180,210,0.45);--mist:#f4f4f8;--mist2:#ecedf4;--white:#ffffff;--ink:#0f0f12;--ease:cubic-bezier(0.16,1,0.3,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--mist);color:var(--tx1);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+.nk-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--rule);height:56px;display:flex;align-items:center;padding:0 2rem}
+.nk-nav-inner{width:100%;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.nk-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.nk-logo-mark{width:24px;height:24px;background:var(--grad);border-radius:6px;position:relative;overflow:hidden;flex-shrink:0}
+.nk-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%)}
+.nk-logo-text{font-family:var(--display);font-size:1.1rem;color:var(--tx1);letter-spacing:-0.01em;line-height:1}
+.nk-logo-text em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nk-breadcrumb{display:flex;align-items:center;gap:0.375rem;font-family:var(--code);font-size:0.68rem;color:var(--tx3);letter-spacing:0.04em}
+.nk-breadcrumb a{color:var(--tx3);text-decoration:none}
+.nk-breadcrumb a:hover{color:var(--tx1)}
+.nk-back{margin-left:auto;font-family:var(--code);font-size:0.65rem;color:var(--tx3);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase}
+.nk-back:hover{color:var(--tx1)}
+.page{max-width:980px;margin:0 auto;padding:2.5rem 1.5rem 5rem}
+h1{font-family:var(--display);font-size:2rem;letter-spacing:-0.025em;margin-bottom:0.375rem}
+.subtitle{color:var(--tx2);font-size:0.9rem;font-weight:300;margin-bottom:2rem}
+.ad-slot{background:var(--white);border:1px dashed var(--rule2);border-radius:10px;min-height:90px;display:flex;align-items:center;justify-content:center;font-family:var(--code);font-size:0.62rem;color:var(--tx3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem}
+.mode-switch{display:flex;background:var(--white);border:1px solid var(--rule2);border-radius:12px;padding:4px;gap:3px;width:fit-content;margin-bottom:1.5rem}
+.mode-btn{padding:0.55rem 1.5rem;border-radius:9px;border:none;font-family:var(--body);font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.18s var(--ease);color:var(--tx3);background:transparent}
+.mode-btn.active{background:var(--ink);color:var(--white);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.panel{background:var(--white);border:1px solid var(--rule2);border-radius:16px;overflow:hidden;margin-bottom:1.25rem}
+.panel-header{padding:0.875rem 1.5rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;background:var(--mist)}
+.panel-title{font-family:var(--code);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--tx2)}
+.panel-actions{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center}
+textarea.b64-area{width:100%;min-height:180px;background:transparent;border:none;color:var(--tx1);font-family:var(--code);font-size:0.875rem;line-height:1.7;padding:1.25rem 1.5rem;resize:vertical;outline:none;word-break:break-all}
+textarea.b64-area::placeholder{color:var(--tx3);font-family:var(--body);font-style:italic;font-size:0.875rem}
+.options-bar{padding:0.75rem 1.5rem;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--mist2);display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center}
+.opt-toggle{display:flex;align-items:center;gap:0.5rem;cursor:pointer;user-select:none}
+.opt-toggle input[type="checkbox"]{width:15px;height:15px;accent-color:var(--ink);cursor:pointer}
+.opt-label{font-size:0.8rem;color:var(--tx2);font-weight:500}
+.opt-hint{font-size:0.68rem;color:var(--tx3)}
+.live-badge{font-family:var(--code);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:100px;background:#dcfce7;color:#15803d;display:none}
+.live-badge.show{display:inline-block}
+.char-count{font-family:var(--code);font-size:0.68rem;color:var(--tx3)}
+.action-footer{padding:1rem 1.5rem;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;background:var(--ink);color:var(--white);font-family:var(--body);font-size:0.875rem;font-weight:600;padding:0.65rem 1.5rem;border-radius:100px;border:none;cursor:pointer;transition:opacity 0.15s,transform 0.15s}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px)}
+.btn-outline{display:inline-flex;align-items:center;gap:0.4rem;background:transparent;color:var(--tx2);font-family:var(--body);font-size:0.8rem;font-weight:600;padding:0.55rem 1rem;border-radius:100px;border:1px solid var(--rule2);cursor:pointer;transition:all 0.15s}
+.btn-outline:hover{border-color:var(--tx1);color:var(--tx1)}
+.btn-sm{font-size:0.68rem;padding:0.3rem 0.7rem;border-radius:8px;border:1px solid var(--rule2);background:transparent;color:var(--tx2);cursor:pointer;font-family:var(--code);transition:all 0.15s;letter-spacing:0.04em;text-transform:uppercase}
+.btn-sm:hover{border-color:var(--tx1);color:var(--tx1)}
+.err-msg{color:#dc2626;font-family:var(--code);font-size:0.78rem;padding:0.5rem 1.5rem;display:none}
+.err-msg.show{display:block}
+.file-section{padding:1.25rem 1.5rem}
+.file-drop{border:2px dashed var(--rule2);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;background:var(--mist)}
+.file-drop:hover,.file-drop.drag-over{border-color:var(--tx1);background:var(--mist2)}
+.file-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-drop-icon{font-size:1.75rem;margin-bottom:0.5rem}
+.file-drop-text{font-size:0.875rem;font-weight:600;margin-bottom:0.2rem}
+.file-drop-sub{font-size:0.75rem;color:var(--tx3)}
+.file-result{display:none;margin-top:1rem}
+.file-result.show{display:block}
+.file-result-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.625rem;flex-wrap:wrap;gap:0.5rem}
+.file-result-name{font-size:0.82rem;font-weight:600}
+textarea.file-output{width:100%;min-height:100px;background:var(--mist);border:1px solid var(--rule2);color:var(--tx1);font-family:var(--code);font-size:0.78rem;padding:0.875rem 1rem;border-radius:10px;outline:none;resize:vertical;word-break:break-all}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-top:1.5rem}
+.info-card{background:var(--white);border:1px solid var(--rule2);border-radius:12px;padding:1.125rem}
+.info-card-title{font-size:0.82rem;font-weight:600;color:var(--tx1);margin-bottom:0.375rem}
+.info-card-body{font-size:0.78rem;color:var(--tx2);line-height:1.65;font-weight:300}
+.info-card-body code{font-family:var(--code);font-size:0.72rem;background:var(--mist);padding:0.1rem 0.35rem;border-radius:4px}
+#sticky-ad{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--rule2);padding:0.5rem 1.5rem;display:none;align-items:center;justify-content:center}
+@media(max-width:640px){
+  .nk-nav{padding:0 1rem}.page{padding:1.5rem 1rem 4rem}h1{font-size:1.625rem}
+  .options-bar{gap:0.875rem}.info-grid{grid-template-columns:1fr}
+  .action-footer{flex-direction:column;align-items:stretch}
+  .btn-primary,.btn-outline{justify-content:center}
+}
+</style>
+</head>
+<body>
+<nav class="nk-nav">
+  <div class="nk-nav-inner">
+    <a class="nk-logo" href="../index.html"><div class="nk-logo-mark"></div><span class="nk-logo-text">Neat<em>kit</em></span></a>
+    <div class="nk-breadcrumb"><span>/</span><a href="../index.html">tools</a><span>/</span><span>base64</span></div>
+    <a class="nk-back" href="../index.html">← All tools</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Base64 Encoder & Decoder</h1>
+  <p class="subtitle">Encode text or files to Base64, or decode Base64 back to text. URL-safe mode, live encoding, file upload. Nothing leaves your browser.</p>
+
+  <div class="ad-slot" aria-label="Advertisement">Advertisement</div>
+
+  <div class="mode-switch">
+    <button class="mode-btn active" id="btn-encode" onclick="setMode('encode')">⬆ Encode</button>
+    <button class="mode-btn" id="btn-decode" onclick="setMode('decode')">⬇ Decode</button>
+  </div>
+
+  <!-- INPUT -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title" id="input-label">Text to encode</span>
+      <div class="panel-actions">
+        <span class="live-badge" id="live-badge">● Live</span>
+        <span class="char-count" id="input-count">0 chars</span>
+        <button class="btn-sm" onclick="pasteClipboard()">Paste</button>
+        <button class="btn-sm" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+    <textarea class="b64-area" id="input-area" placeholder="Type or paste your text here..." oninput="onInput()"></textarea>
+    <div class="options-bar">
+      <label class="opt-toggle">
+        <input type="checkbox" id="opt-urlsafe" onchange="onInput()">
+        <span class="opt-label">URL-safe</span>
+        <span class="opt-hint">uses - and _ instead of + and /</span>
+      </label>
+      <label class="opt-toggle">
+        <input type="checkbox" id="opt-lines" onchange="onInput()">
+        <span class="opt-label">76-char lines</span>
+        <span class="opt-hint">MIME format</span>
+      </label>
+      <label class="opt-toggle">
+        <input type="checkbox" id="opt-live" onchange="toggleLive()">
+        <span class="opt-label">Live mode</span>
+        <span class="opt-hint">encode as you type</span>
+      </label>
+    </div>
+    <div class="action-footer">
+      <button class="btn-primary" id="action-btn" onclick="runAction()">⬆ Encode to Base64</button>
+      <button class="btn-outline" onclick="swapPanels()">⇅ Swap input / output</button>
+      <button class="btn-outline" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="panel" id="output-panel" style="display:none">
+    <div class="panel-header">
+      <span class="panel-title" id="output-label">Base64 encoded</span>
+      <div class="panel-actions">
+        <span class="char-count" id="output-count">0 chars</span>
+        <button class="btn-sm" onclick="copyOutput()">Copy</button>
+        <button class="btn-sm" onclick="downloadOutput()">Download .txt</button>
+      </div>
+    </div>
+    <textarea class="b64-area" id="output-area" readonly placeholder="Result will appear here..."></textarea>
+    <div class="err-msg" id="err-msg"></div>
+  </div>
+
+  <!-- FILE UPLOAD -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">File → Base64</span>
+      <span style="font-family:var(--code);font-size:0.65rem;color:var(--tx3)">Any file type · Max 50MB · Never uploaded</span>
+    </div>
+    <div class="file-section">
+      <div class="file-drop" id="file-drop">
+        <input type="file" id="file-input" onchange="handleFile(this.files[0])">
+        <div class="file-drop-icon">📎</div>
+        <div class="file-drop-text">Drop any file here, or click to browse</div>
+        <div class="file-drop-sub">Image, PDF, document — any type · Outputs a Base64 data URI</div>
+      </div>
+      <div class="file-result" id="file-result">
+        <div class="file-result-row">
+          <span class="file-result-name" id="file-result-name">—</span>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+            <span style="font-family:var(--code);font-size:0.7rem;color:var(--tx3)" id="file-result-meta">—</span>
+            <button class="btn-sm" onclick="copyFileOutput()">Copy</button>
+            <button class="btn-sm" onclick="downloadFileOutput()">Download .txt</button>
+            <button class="btn-sm" onclick="clearFile()" style="color:#dc2626">✕ Clear</button>
+          </div>
+        </div>
+        <textarea class="file-output" id="file-output" readonly></textarea>
+        <div style="margin-top:0.625rem;font-size:0.75rem;color:var(--tx3)">💡 To decode Base64 back to a file, paste the string into the Decode panel above.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot" aria-label="Advertisement">Advertisement</div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-title">What is Base64?</div>
+      <div class="info-card-body">Base64 encodes binary data as ASCII text using 64 characters (A–Z, a–z, 0–9, +, /). Used in emails (MIME), HTML image embedding (<code>data:image/png;base64,…</code>), JSON payloads, and API authentication.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">URL-safe Base64</div>
+      <div class="info-card-body"><code>+</code> and <code>/</code> have special meaning in URLs. URL-safe mode replaces them with <code>-</code> and <code>_</code> and removes <code>=</code> padding. Use for JWT tokens, URL parameters, and filenames.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">Encoding ≠ Encryption</div>
+      <div class="info-card-body">Base64 is <strong>not encryption</strong>. Anyone can decode it instantly. It changes the <em>format</em> of data, not its security. Never use it to hide passwords or sensitive data.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">MIME 76-char lines</div>
+      <div class="info-card-body">RFC 2045 requires Base64 in emails to be split into 76-character lines separated by CRLF. Enable "76-char lines" when preparing Base64 for email attachments or MIME content.</div>
+    </div>
+  </div>
+</div>
+
+<div id="sticky-ad" role="complementary" aria-label="Advertisement">
+  <button onclick="document.getElementById('sticky-ad').style.display='none'" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:0.875rem">✕</button>
+  <div style="font-family:var(--code);font-size:0.62rem;color:var(--tx3);letter-spacing:0.1em;text-transform:uppercase;min-height:50px;display:flex;align-items:center;justify-content:center;width:100%">Advertisement</div>
+</div>
+
+<script>
+let currentMode='encode', liveMode=false, fileB64='', fileName='', debounceTimer=null;
+
+function setMode(mode){
+  currentMode=mode;
+  document.getElementById('btn-encode').classList.toggle('active',mode==='encode');
+  document.getElementById('btn-decode').classList.toggle('active',mode==='decode');
+  document.getElementById('input-label').textContent=mode==='encode'?'Text to encode':'Base64 to decode';
+  document.getElementById('output-label').textContent=mode==='encode'?'Base64 encoded':'Decoded text';
+  document.getElementById('action-btn').textContent=mode==='encode'?'⬆ Encode to Base64':'⬇ Decode from Base64';
+  document.getElementById('input-area').placeholder=mode==='encode'?'Type or paste text to encode...':'Paste Base64 string to decode…\n\nExample: SGVsbG8gV29ybGQ=';
+  const opts=['opt-urlsafe','opt-lines'];
+  opts.forEach(id=>document.getElementById(id).closest('label').style.opacity=mode==='encode'?'':'0.4');
+  clearAll();
+}
+
+function toggleLive(){
+  liveMode=document.getElementById('opt-live').checked;
+  document.getElementById('live-badge').classList.toggle('show',liveMode);
+  if(liveMode)onInput();
+}
+
+function onInput(){
+  const text=document.getElementById('input-area').value;
+  document.getElementById('input-count').textContent=text.length.toLocaleString()+' chars';
+  if(liveMode){clearTimeout(debounceTimer);debounceTimer=setTimeout(runAction,100);}
+}
+
+function runAction(){
+  const input=document.getElementById('input-area').value;
+  if(!input.trim()){document.getElementById('output-panel').style.display='none';return;}
+  const urlSafe=document.getElementById('opt-urlsafe').checked;
+  const splitLines=document.getElementById('opt-lines').checked;
+  let result='',error='';
+  if(currentMode==='encode'){
+    try{
+      let enc=btoa(unescape(encodeURIComponent(input)));
+      if(urlSafe)enc=enc.replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+      if(splitLines&&!urlSafe)enc=enc.match(/.{1,76}/g).join('\r\n');
+      result=enc;
+    }catch(e){error='Encoding error: '+e.message;}
+  } else {
+    try{
+      let b64=input.trim().replace(/-/g,'+').replace(/_/g,'/').replace(/\s/g,'');
+      while(b64.length%4)b64+='=';
+      result=decodeURIComponent(escape(atob(b64)));
+    }catch(e){error='⚠ Invalid Base64 — '+e.message;}
+  }
+  const panel=document.getElementById('output-panel');
+  panel.style.display='';
+  document.getElementById('output-area').value=result;
+  document.getElementById('err-msg').textContent=error;
+  document.getElementById('err-msg').classList.toggle('show',!!error);
+  document.getElementById('output-count').textContent=result.length.toLocaleString()+' chars';
+}
+
+function swapPanels(){
+  const out=document.getElementById('output-area').value;
+  if(!out)return;
+  document.getElementById('input-area').value=out;
+  document.getElementById('output-panel').style.display='none';
+  setMode(currentMode==='encode'?'decode':'encode');
+  document.getElementById('input-area').value=out;
+  onInput();runAction();
+}
+
+function clearAll(){
+  document.getElementById('input-area').value='';
+  document.getElementById('output-area').value='';
+  document.getElementById('input-count').textContent='0 chars';
+  document.getElementById('output-count').textContent='0 chars';
+  document.getElementById('output-panel').style.display='none';
+  document.getElementById('err-msg').classList.remove('show');
+}
+
+function copyOutput(){
+  const val=document.getElementById('output-area').value;
+  if(!val)return;
+  navigator.clipboard.writeText(val).then(()=>toast('Copied!'));
+}
+
+function downloadOutput(){
+  const val=document.getElementById('output-area').value;
+  if(!val)return;
+  const blob=new Blob([val],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=currentMode==='encode'?'encoded.b64.txt':'decoded.txt';
+  a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+
+async function pasteClipboard(){
+  try{const t=await navigator.clipboard.readText();document.getElementById('input-area').value=t;onInput();if(!liveMode)runAction();}
+  catch{toast('Clipboard access denied — paste manually');}
+}
+
+// File handling
+const fd=document.getElementById('file-drop');
+fd.addEventListener('dragover',e=>{e.preventDefault();fd.classList.add('drag-over');});
+fd.addEventListener('dragleave',e=>{if(!fd.contains(e.relatedTarget))fd.classList.remove('drag-over');});
+fd.addEventListener('drop',e=>{e.preventDefault();fd.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+
+function handleFile(file){
+  if(!file)return;
+  if(file.size>50*1024*1024){toast('File too large. Max 50MB.');return;}
+  fileName=file.name;
+  const r=new FileReader();
+  r.onload=e=>{
+    fileB64=e.target.result;
+    const b64only=fileB64.split(',')[1];
+    document.getElementById('file-result-name').textContent=file.name;
+    document.getElementById('file-result-meta').textContent=fmt(file.size)+' → '+fmt(b64only.length)+' Base64';
+    document.getElementById('file-output').value=fileB64;
+    document.getElementById('file-result').classList.add('show');
+    fd.style.display='none';
+  };
+  r.readAsDataURL(file);
+}
+
+function copyFileOutput(){navigator.clipboard.writeText(document.getElementById('file-output').value).then(()=>toast('File Base64 copied!'));}
+function downloadFileOutput(){
+  if(!fileB64)return;
+  const blob=new Blob([fileB64],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=fileName+'.b64.txt';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+function clearFile(){
+  fileB64='';fileName='';
+  document.getElementById('file-result').classList.remove('show');
+  fd.style.display='';
+  document.getElementById('file-input').value='';
+  document.getElementById('file-output').value='';
+}
+
+function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(2)+'MB';}
+
+function toast(msg){
+  document.querySelectorAll('.nk-toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  Object.assign(t.style,{position:'fixed',bottom:'1.5rem',left:'50%',transform:'translateX(-50%)',background:'#0f0f12',color:'white',padding:'0.75rem 1.5rem',borderRadius:'100px',fontSize:'0.82rem',fontWeight:'500',zIndex:'9999',boxShadow:'0 8px 32px rgba(0,0,0,0.18)',fontFamily:"'Outfit',sans-serif",whiteSpace:'nowrap'});
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},2200);
+}
+
+setTimeout(()=>{document.getElementById('sticky-ad').style.display='flex';},5000);
+</script>
+</body>
+</html>
